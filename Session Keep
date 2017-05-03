@@ -1,0 +1,12 @@
+<?php
+session_start();
+if (!isset($_SESSION['id']))
+    header("Location: login.php");         //eg login.php= your custom page url
+ ?>
+ 
+ 
+ //if the user is logged in then this code on top of every page keep out the user from accessing a 
+ new page unless the user logged out or destroy the session
+ 
+ 
+ eg: user will redirect to profile page if the heDER pge is set to profile page no matter what.

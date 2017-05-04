@@ -1,0 +1,102 @@
+<!-- Upload Design Page-->
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Upload</title>
+
+	<!-- CSS -->
+	
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+<body>
+		<form action="upload.php" enctype="multipart/form-data" method="post" class="form form-inline">
+			<center>
+			<br>
+			<label>Image:</label>
+				<input type="file" name="img" class="btn-info">
+				<br>
+				<br>
+				<input type="submit" name="submit"  class="btn btn-info" value="Upload">
+			</center>
+				
+		</form>
+
+<br>
+		
+    
+    <!-- view image from DB -->
+    
+    
+<table class="table btn-success"><tr><th colspan="4"> Image Gallary </th></tr> 
+<?php
+        include 'config.php';                  //make your own config.php
+        $res = mysql_query("SELECT * FROM image");
+ 
+        $count=0; 
+        while($r=mysql_fetch_row($res))
+       {
+            if($count == 4 )
+            {
+                echo "</tr>";
+                $count=0;
+            }
+ 
+           if($count == 0)
+           {
+                echo "<tr>"; 
+           }
+           echo "<td align='center'><img src='".$r[1]."' height='100' width='100'></br>
+           <a href='delete.php?id=$r[0]>'> <img src='/Delete_Imag_Button.png' height='50' width='100'></a>";
+           $count++;
+           echo"</td>";
+ } 
+           if($count > 0)
+               echo "</tr>";
+ ?>
+</table>	
+
+<!-- View from DB ends here -->
+
+</body>
+</html>
+
+
+<!-- Upload.php --- starts here -->
+
+ <?php
+      include 'config.php';         //make your own config.php
+      //session_start();
+      //$id=$_SESSION['id'];
+      $img=$_FILES['img']['name'];
+      $temp=$_FILES['img']['tmp_name'];
+      $path="images/".$img;
+      move_uploaded_file($temp, $path);
+      $ins=mysql_query("insert into image values('','$path')");
+      if($ins)
+      {
+      	header("location:image.php");
+      }
+?>
+
+<!-- Upload.php ends here ->
+
+<!-- delete.php starts here -->
+
+<?php
+     include 'config.php';
+     $id=$_REQUEST["id"];
+     $select=mysql_query("select image from image where id='$id'");
+     $image=mysql_fetch_array($select);
+     @unlink($image['image']);                      //delete from folder also
+     $delete=mysql_query("delete from image where id='$id'");
+        if($delete)
+        {
+            header("location:image.php");
+        }
+?>&gt;
+
+<!-- delete.php ends here -->
+

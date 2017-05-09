@@ -1,0 +1,38 @@
+----------add this to function.php -------------
+----------------------------------for selection of current page -----------
+
+add_filter('nav_menu_css_class' , 'special_nav_class' , 10 , 2);
+
+function special_nav_class ($classes, $item) {
+    if (in_array('current-menu-item', $classes) ){
+        $classes[] = 'active ';
+    }
+    return $classes;
+}
+
+
+
+------------------fetch menus in header----------------------
+
+1. creat pages with the same name as html file
+2. Cereat a new menu
+3. organize them as htnl
+4. slect the menu location top/footer etc
+5.save it
+
+
+----------------fetch part----------------
+
+on the header.php find the class and remove those valus or disable them
+
+  add this code in place of that
+  
+  <?php wp_nav_menu( array( 
+                        									'theme_location' => 'top',          //same as menu location
+                        									'container' => 'false',                 
+                        									'menu_class' => 'nav navbar-nav navbar-right',          //same as div or ul tag
+                        									//'walker' => 'WP_Bootstrap_Navwalker()'
+
+
+                   								  ) ); 
+                   				?>

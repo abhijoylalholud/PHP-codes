@@ -1,0 +1,42 @@
+add_action( 'customize_register', 'phone_email_customizer' );
+
+function phone_email_customizer($wp_customize)                //add  a function name
+{
+	$wp_customize->add_section( 
+								'phone_email',                           //section id
+								array(
+										'title'=>'Phone & Email',           //Title at editor menu
+										'description'=>'Phone and Email',   //Description
+										'priority'=>10                      //priority, not necessary
+									 ));
+	
+	$wp_customize->add_setting('email');          //will add a setting submenu
+
+	$wp_customize->add_setting('email');          //will add a setting submenu
+	$wp_customize->add_setting('phone');         
+
+	$wp_customize->add_control('email',             //will helpin control the value
+								array(
+										'label'=>'Email',             //label for field name 
+										'section'=>'phone_email',     //section id, check above
+										'type'=>'text'                //type text maybe other for 
+										
+									 ));
+
+	$wp_customize->add_control(
+								'phone',
+								array(
+										'label'=>'Phone',
+										'section'=>'phone_email',
+										'type'=>'text'
+										
+									 ));
+}
+
+
+
+
+/////-------------fetch----------------////////
+
+<a href="mailto:<?php  echo get_theme_mod('email'); ?> //this one will hold the click action
+<span><?php  echo get_theme_mod('email'); ?></span>    //this span will shoe the data

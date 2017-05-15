@@ -1,0 +1,23 @@
+add_action( 'customize_register', 'footer_logo_customizer' );  //function name and this 2nd arg will same
+
+function footer_logo_customizer($wp_customize)
+{
+	$wp_customize->add_section(                 //this will add new section
+								'footer_logo',
+								array(
+										'title'=>'Footer Logo',      //will show section name
+										'description'=>'footer logo',     //desciption will show under title
+										'priority'=>10
+									 ));
+	
+	$wp_customize->add_setting('footer_logo');    //  settings menu
+
+	$wp_customize->add_control('footer_logo',
+								array(
+										'label'=>'Footer Logo',
+										'section'=>'footer_logo',
+										'type'=>'file'                //this arg will pass parameter such as text for text field and so on
+										
+									 ));
+
+}

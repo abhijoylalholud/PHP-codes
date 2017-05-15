@@ -1,0 +1,16 @@
+<?php $facebook=get_theme_mod('facebook');
+                              $linkedin=get_theme_mod('linkedin');
+                              $youtube=get_theme_mod('youtube');
+                              $twitter=get_theme_mod('twitter');
+                        ?>     
+                                    
+ <?php if ($facebook!=''){?><a href="<?php echo esc_url( get_theme_mod( 'facebook' ) ); ?>"><i class="fa fa-facebook"></i><?php } ?>
+ <?php if ($linkedin!=''){?><a href="<?php echo esc_url( get_theme_mod( 'linkedin' ) ); ?>"><i class="fa fa-linkedin"></i><?php } ?>
+ <?php if ($youtube!=''){?><a href="<?php echo esc_url( get_theme_mod( 'youtube' ) ); ?>"><i class="fa fa-youtube-play"></i></a><?php } ?>
+ <?php if ($twitter!=''){?><a href="<?php echo esc_url( get_theme_mod( 'twitter' ) ); ?>"><i class="fa fa-twitter"></i></a><?php } ?>
+ 
+ 
+ 
+ //condition for null check 
+ 
+ if ($facebook!='')

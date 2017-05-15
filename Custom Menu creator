@@ -1,26 +1,24 @@
-add_action( 'customize_register', 'footer_logo_customizer' );  //function name and this 2nd arg will same
+add_action('customize_register', 'footer_customize_register');
+function footer_customize_register( $wp_customize ) {
 
-function footer_logo_customizer($wp_customize)
-{
-	$wp_customize->add_section(                 //this will add new section
-								'footer_logo',
-								array(
-										'title'=>'Footer Logo',      //will show section name
-										'description'=>'footer logo',     //desciption will show under title
-										'priority'=>10
-									 ));
-	
-	$wp_customize->add_setting('footer_logo');    //  settings menu
+    // Add Settings
+    $wp_customize->add_setting('footer_logo', array(
+        'transport'         => 'refresh',
+        'height'         => 325,
+    ));
+    
+    // Add Section
+    $wp_customize->add_section('slideshow', array(
+        'title'             => __('Footer Logo'), 
+        'priority'          => 70,
+    ));    
 
-	$wp_customize->add_control('footer_logo',
-								array(
-										'label'=>'Footer Logo',
-										'section'=>'footer_logo',
-										'type'=>'file'                //this arg will pass parameter such as text for text field and so on
-										
-									 ));
-
+    // Add Controls
+    $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'customizer_setting_two_control', array(
+        'label'             => __('Select Footer Image'),
+        'section'           => 'slideshow',							//comes from section
+        'settings'          => 'footer_logo',   						 //this one comes from add_setting
+    )));
+      
 }
 
-
-//for more info on file type arg check this link https://codex.wordpress.org/Class_Reference/WP_Customize_Manager/add_control

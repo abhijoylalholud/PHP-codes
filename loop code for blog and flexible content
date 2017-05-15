@@ -1,0 +1,24 @@
+<div class="item">
+<?php 
+                     $blog_query = new WP_Query( 
+                          array( 
+                   'post_type' => 'Testimonials',
+                   'posts_per_page'=> 3,
+                   'order' => 'DESC',
+                         )
+                           );
+                  if ( $blog_query->have_posts() ) :
+                   while ( $blog_query->have_posts() ) : $blog_query->the_post(); ?>
+<div class="testimonial_text">
+<div class="koma"><img src="<?php echo esc_url(get_template_directory_uri()); ?>/assets/images/koma.png" alt="" /></div>
+<div class="testi_para">
+<p>
+<?php echo wp_trim_words( get_the_content(), 30, '...' ); ?>
+</p>
+<div class="tesi_name">
+<h4><?php the_author(); ?> - <span><?php the_field('designation'); ?></span></h4>
+</div>
+</div>
+</div>
+</div>
+<?php endwhile; wp_reset_postdata(); endif; ?>

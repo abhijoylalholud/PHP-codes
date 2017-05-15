@@ -1,0 +1,6 @@
+<?php $facebook=get_theme_mod('facebook');?>     
+                                    
+<?php if ($facebook!=''){?><a href="<?php echo esc_url( get_theme_mod( 'facebook' ) ); ?>"><i class="fa fa-facebook"></i><?php } ?>
+ 
+ 
+ facebook is the id of that custom field

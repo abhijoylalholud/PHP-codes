@@ -21,3 +21,6 @@ function footer_logo_customizer($wp_customize)
 									 ));
 
 }
+
+
+//for more info on file type arg check this link https://codex.wordpress.org/Class_Reference/WP_Customize_Manager/add_control

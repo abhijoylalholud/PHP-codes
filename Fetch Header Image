@@ -4,5 +4,5 @@
 </a>
 <?php endif; ?>
 
-
+//check also the class under anchor tag. If class is not in the html then do not add it.
 //put this code under respective div and select header image from customize section of site.

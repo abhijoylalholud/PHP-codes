@@ -1,0 +1,21 @@
+case one: 1111 1111 1111
+use this:
+
+<?php $phone=get_theme_mod('phone');               //fetch value from respective field
+      $tel=preg_replace('/\s+/', '',$phone);      
+      $email=get_theme_mod('email');
+      $mail=preg_replace('/\s+/', '',$email);
+ ?> 
+ 
+ <?php echo $tel ?>   //show the value under tel: tag
+ 
+ 
+ case two: 1111-1111-1111
+  use this:
+  <?php $phone=get_theme_mod('phone');               //fetch value from respective field
+      $tel=preg_replace('/[^0-9]/', '',$phone);      
+      $email=get_theme_mod('email');
+      $mail=preg_replace('/\s+/', '',$email);
+ ?> 
+ 
+ <?php echo $tel ?>   //show the value under tel: tag

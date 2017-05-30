@@ -3,4 +3,4 @@ output: Tags: 'tag name'
 
 <?php the_tags(''); ?> o/p='tag name'
 
-<?php the_tags('',$sep); ?> will use comma(,) after each tag name if more than one tag is available
+<?php the_tags('',$sep=','); ?> will use comma(,) after each tag name if more than one tag is available

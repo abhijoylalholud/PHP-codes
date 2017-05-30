@@ -1,0 +1,3 @@
+<?php the_author(); ?>     O/P just author name with out any hyper link
+
+<?php the_author_posts_link(); ?>              O/P just author name with hyper link

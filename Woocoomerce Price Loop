@@ -1,0 +1,12 @@
+<?php
+global $woocommerce;
+$currency = get_woocommerce_currency_symbol();
+$price = get_post_meta( get_the_ID(), '_regular_price', true);
+$sale = get_post_meta( get_the_ID(), '_sale_price', true);
+?>
+ 
+<?php if($sale) : ?>
+<p class="product-price-tickr"><del><?php echo $currency; echo $price; ?></del> <?php echo $currency; echo $sale; ?></p>    
+<?php elseif($price) : ?>
+<p class="product-price-tickr"><?php echo $currency; echo $price; ?></p>    
+<?php endif; ?>

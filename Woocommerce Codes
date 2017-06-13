@@ -5,3 +5,7 @@
         echo $catID;                    category ID
         echo get_cat_name($cateID);     category name
 ?>
+
+
+//redirect to a category page using category ID//
+<?php echo get_term_link( 15, 'product_cat' ); ?>

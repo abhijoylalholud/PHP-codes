@@ -1,0 +1,7 @@
+//Product Category name fetch by ID //
+
+<?php   $cate = get_queried_object(); 
+        $cateID = $cate->term_id;
+        echo $catID;                    category ID
+        echo get_cat_name($cateID);     category name
+?>

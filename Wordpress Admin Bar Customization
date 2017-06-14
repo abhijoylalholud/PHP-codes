@@ -1,0 +1,65 @@
+/*
+ * Disable the current Site Name menu in the Admin Bar
+ */
+function remove_this_site() {
+	global $wp_admin_bar;
+	$wp_admin_bar->remove_menu('site-name');
+}
+add_action( 'wp_before_admin_bar_render', 'remove_this_site' );
+
+
+//change Howdy
+
+function howdy_message($translated_text, $text, $domain) {
+    $new_message = str_replace('Howdy', 'Welcome', $text);
+    return $new_message;
+}
+add_filter('gettext', 'howdy_message', 10, 3);
+
+
+///replace site logo in admin bar
+
+
+function my_custom_logo() {
+    echo '
+    <style type="text/css">
+    #wpadminbar #wp-admin-bar-site-name>.ab-item:before  {
+        background-position: 0 0;
+        content: url(' . get_bloginfo('stylesheet_directory') . '/assets/images/twitterlogo.png)!important;
+        top: 2px;
+        display: block;
+        width: 15px;
+        height: 20px;
+        pointer-events: none!important;
+        cursor: default;
+    }
+    #wp-admin-bar-wp-logo.hover > .ab-item .ab-icon {
+        background-position: 0 0;
+    }
+     </style>
+    ';
+}
+add_action('admin_head', 'my_custom_logo');
+
+
+   // Replace Wordpress logo with custom Logo
+function my_custom_logo() {
+    echo '
+    <style type="text/css">
+    #wp-admin-bar-wp-logo > .ab-item .ab-icon:before {
+        background-position: 0 0;
+        content: url(' . get_bloginfo('stylesheet_directory') . '/assets/images/twitterlogo.png)!important;
+        top: 2px;
+        display: block;
+        width: 15px;
+        height: 20px;
+        pointer-events: none!important;
+        cursor: default;
+    }
+    #wp-admin-bar-wp-logo.hover > .ab-item .ab-icon {
+        background-position: 0 0;
+    }
+     </style>
+    ';
+}
+add_action('admin_head', 'my_custom_logo');

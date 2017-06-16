@@ -1,0 +1,68 @@
+add_action( 'customize_register', 'social_media_customizer' );
+
+function social_media_customizer( $wp_customize ) {
+   $wp_customize->add_section(
+       'social_media',
+       array(
+           'title' => 'Social Media for Footer Area',
+           'description' => 'Insert Social Media Link',
+           'priority' => 35,
+       )
+    );
+	$wp_customize->add_setting(
+	   'facebook'
+	);
+	$wp_customize->add_setting(
+	   'linkedin'
+	);
+	$wp_customize->add_setting(
+	   'instagram'
+	);
+	$wp_customize->add_setting(
+	   'twitter'
+	);
+    $wp_customize->add_setting(
+	   'envelope'
+	);
+	$wp_customize->add_control(
+	   'facebook',
+	   array(
+	       'label' => 'Facebook',
+	       'section' => 'social_media',
+	       'type' => 'text',
+	   )
+	);
+    $wp_customize->add_control(
+	   'twitter',
+	   array(
+	       'label' => 'Twitter',
+	       'section' => 'social_media',
+	       'type' => 'text',
+	   )
+	);
+	$wp_customize->add_control(
+	   'linkedin',
+	   array(
+	       'label' => 'Linkedin',
+	       'section' => 'social_media',
+	       'type' => 'text',
+	   )
+	);
+	$wp_customize->add_control(
+	   'instagram',
+	   array(
+	       'label' => 'Instagram',
+	       'section' => 'social_media',
+	       'type' => 'text',
+	   )
+	);
+    $wp_customize->add_control(
+	   'envelope',
+	   array(
+	       'label' => 'Envelope',
+	       'section' => 'social_media',
+	       'type' => 'text',
+	   )
+	);
+	
+	}

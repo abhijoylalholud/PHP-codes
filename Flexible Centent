@@ -1,0 +1,5 @@
+<?php if( have_rows('traditional_channel_sub') ):
+                                  while ( have_rows('traditional_channel_sub') ) : the_row();
+?>
+<?php the_sub_field('heading'); ?>
+<?php endwhile; endif; ?>

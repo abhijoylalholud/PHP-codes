@@ -14,3 +14,27 @@ function create_posttype() {
     )
   );
 }
+
+
+Call:
+
+<?php 
+					$data = new WP_Query( 
+					array( 
+						'post_type' => 'products',
+						'posts_per_page'=> 3,
+						'order' => 'DESC',
+						)
+					);
+					if ( $data->have_posts() ) :
+					while ( $data->have_posts() ) : $data->the_post(); ?>
+          
+          //////////////For image/////////////////
+          <?php $image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'single-post-thumbnail'); ?>
+								<figure><img src="<?php echo $image[0]; ?>" alt="" /></figure>
+								<?php } ?>
+                
+                
+                <?php endwhile; wp_reset_postdata(); endif; ?>
+                
+                ///////////loop end//////////

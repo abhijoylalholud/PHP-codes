@@ -1,0 +1,16 @@
+/*-------------------------------------Custom Post Type Creation Starts Here----------------------------------*/
+add_action( 'init', 'create_posttype' );
+function create_posttype() {
+  register_post_type( 'products',
+    array(
+      'labels' => array(
+        'name' => __( 'Products' ),   //THIS AREA WILL SHOW ON SIDEBAR AS THIS NAME
+        'singular_name' => __( 'product' )   //THIS AREA WILL SHOW  IN ACF LOCATION--->rules
+      ),
+      'public' => true,
+      'has_archive' => true,
+      'rewrite' => array('slug' => 'product'),
+      'supports' => array( 'title', 'editor', 'author', 'thumbnail')
+    )
+  );
+}

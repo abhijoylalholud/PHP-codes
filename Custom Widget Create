@@ -1,0 +1,16 @@
+function custom_widget() {
+	register_sidebar( array(
+		'name'          => __( 'Footer Block One', 'twentyseventeen' ),
+		'id'            => 'footer_menu1',
+		'description'   => __( 'Add widgets here to appear in your sidebar on blog posts and archive pages.', 'twentyseventeen' ),
+		'before_widget' => '<ul class="footer_list">',
+		'after_widget'  => '</ul>',
+		'before_title'  => '<h3>',
+		'after_title'   => '</h3>',
+	) );
+}
+
+add_action( 'widgets_init', 'custom_widget' );
+
+
+Call :  <?php dynamic_sidebar('footer_menu1'); ?>

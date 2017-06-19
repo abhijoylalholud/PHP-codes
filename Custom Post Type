@@ -27,6 +27,7 @@ Call:
 						)
 					);
 					if ( $data->have_posts() ) :
+					$count=1;					//counter for post serial no
 					while ( $data->have_posts() ) : $data->the_post(); ?>
           
           //////////////For image/////////////////
@@ -36,7 +37,7 @@ Call:
                                             <?php } ?>
 //////////////////////////////////////////////////////////////////////////					    /////////////////
                 
-                
+                <?php echo $count++; ?>           //display post serial no//
                 <?php endwhile; wp_reset_postdata(); endif; ?>
                 
                 ///////////loop end//////////

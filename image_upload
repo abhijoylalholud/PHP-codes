@@ -1,0 +1,20 @@
+<?php
+include "config.php";
+if(isset($_POST['upload']))
+{
+    $target="uploads/".basename($_FILES['image']['name']);
+    $image=$_FILES["image"]["name"];
+    $query="insert into user(image) values
+                      ('$image')";
+    mysqli_query($conn,$query);
+    if(move_uploaded_file($_FILES['image']['tmp_name'],$target))
+    {
+        $msg="Success";
+        echo $msg;
+    }
+    else
+    {
+        $msg="Error";
+        echo $msg;
+    }
+}

@@ -79,3 +79,40 @@ add_action( 'init', 'create_products_taxonomies', 0 );
 
     register_taxonomy( 'video_cat', array( 'video' ), $args );
 }
+
+//for tags
+add_action( 'init', 'create_tag_taxonomies', 0 );
+
+//create two taxonomies, genres and tags for the post type "tag"
+function create_tag_taxonomies() 
+{
+  // Add new taxonomy, NOT hierarchical (like tags)
+  $labels = array(
+    'name' => _x( 'Video Tags', 'taxonomy general name' ),
+    'singular_name' => _x( 'video Tag', 'taxonomy singular name' ),
+    'search_items' =>  __( 'Search Video Tags' ),
+    'popular_items' => __( 'Popular Video Tags' ),
+    'all_items' => __( 'All Video Tags' ),
+    'parent_item' => null,
+    'parent_item_colon' => null,
+    'edit_item' => __( 'Edit Tag' ), 
+    'update_item' => __( 'Update Tag' ),
+    'add_new_item' => __( 'Add New Tag' ),
+    'new_item_name' => __( 'New Tag Name' ),
+    'separate_items_with_commas' => __( 'Separate tags with commas' ),
+    'add_or_remove_items' => __( 'Add or remove tags' ),
+    'choose_from_most_used' => __( 'Choose from the most used tags' ),
+    'menu_name' => __( 'Video Tags' ),
+  ); 
+
+    $args=array(
+    'hierarchical' => false,
+    'labels' => $labels,
+    'show_ui' => true,
+    'show_admin_column' => true,
+    'update_count_callback' => '_update_post_term_count',
+    'query_var' => true,
+    'rewrite' => array( 'slug' => 'video_tag' ),
+  );
+  register_taxonomy( 'video_tag', array( 'video' ), $args );
+} ?>

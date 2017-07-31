@@ -1,0 +1,81 @@
+<?php 
+function custom_post_type2() {
+$labels = array(
+'name'                => __( 'Video' ),
+'singular_name'       => __( 'Video' ),
+'menu_name'           => __( 'Video'),
+'parent_item_colon'   => __( 'Parent Video'),
+'all_items'           => __( 'All Video' ),
+'view_item'           => __( 'View Video' ),
+'add_new_item'        => __( 'Add New Video' ),
+'add_new'             => __( 'Add New' ),
+'edit_item'           => __( 'Edit Video' ),
+'update_item'         => __( 'Update Video' ),
+'search_items'        => __( 'Search Video' ),
+'not_found'           => __( 'Not Found' ),
+'not_found_in_trash'  => __( 'Not found in Trash' ),
+);
+
+// Set other options for Custom Post Type
+
+$args = array(
+'label'               => __( 'video'),
+'description'         => __( 'videos' ),
+'labels'              => $labels,
+// Features this CPT supports in Post Editor
+'supports'            => array( 'title', 'editor', 'excerpt', 'author', 'thumbnail', 'comments', 'revisions', 'custom-fields', ),
+// You can associate this CPT with a taxonomy or custom taxonomy. 
+'taxonomies'          => array( 'genres' ),
+/* A hierarchical CPT is like Pages and can have
+* Parent and child items. A non-hierarchical CPT
+* is like Posts.
+*/  
+'hierarchical'        => false,
+'public'              => true,
+'show_ui'             => true,
+'show_in_menu'        => true,
+'show_in_nav_menus'   => true,
+'show_in_admin_bar'   => true,
+'menu_position'       => 30,
+'menu_icon'           => 'dashicons-calendar-alt',
+'can_export'          => true,
+'has_archive'         => true,
+'exclude_from_search' => false,
+'publicly_queryable'  => true,
+'capability_type'     => 'post',
+);
+register_post_type( 'video', $args );
+}
+add_action( 'init', 'custom_post_type2', 0 ); ?>
+<?php 
+add_action( 'init', 'create_products_taxonomies', 0 );
+
+// create two taxonomies, bimpost_cat and writers for the post type "bimpost"
+   function create_products_taxonomies() {
+    // Add new taxonomy, make it hierarchical (like categories)
+    $labels = array(
+        'name'              => _x( 'Video Categories', 'taxonomy general name' ),
+        'singular_name'     => _x( 'video_cat', 'taxonomy singular name' ),
+        'search_items'      => __( 'Search video_cat' ),
+        'all_items'         => __( 'All video_cat' ),
+        'parent_item'       => __( 'Parent video_cat' ),
+        'parent_item_colon' => __( 'Parent video_cat:' ),
+        'edit_item'         => __( 'Edit video_cat' ),
+        'update_item'       => __( 'Update video_cat' ),
+        'add_new_item'      => __( 'Add New video_cat' ),
+        'new_item_name'     => __( 'New video_cat Name' ),
+        'menu_name'         => __( 'Video Categories' ),
+    );
+
+    $args = array(
+        'hierarchical'      => true,
+        'labels'            => $labels,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'update_count_callback' => 'my_update_profession_count',
+        'query_var'         => true,
+        'rewrite'           => array( 'slug' => 'video_cat' ),
+    );
+
+    register_taxonomy( 'video_cat', array( 'video' ), $args );
+}

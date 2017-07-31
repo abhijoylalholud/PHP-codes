@@ -1,0 +1,31 @@
+//for pagination
+<?php    
+    $paged1 = isset( $_GET['paged1'] ) ? (int) $_GET['paged1'] : 1;
+    $paged2 = isset( $_GET['paged2'] ) ? (int) $_GET['paged2'] : 1; 
+    $args = array (
+        'post_type'  => 'video',  
+        'showposts'=>3,
+        'order'=>'ASC',
+        'paged' => $paged1        
+    ); 
+    $my_query1 = new WP_Query( $args );   
+?>
+<?php  
+    while($my_query1->have_posts())
+    {
+        $my_query1->the_post();
+?>
+the code and
+<?php } ?>
+
+<div class="pagination">
+    <?php $pag_args1 = array(
+        'format'  => '?paged1=%#%',
+        'current' => $paged1,
+        'total'   => $my_query1->max_num_pages,
+        'add_args' => array( 'paged2' => $paged2 ),
+        'prev_text'  => __('&laquo; Previous'),  &nbsp
+        'next_text' => __('&raquo; Next'),
+    );
+    echo paginate_links( $pag_args1 );?>
+</div>

@@ -36,6 +36,7 @@ $args = array(
 'show_in_menu'        => true,
 'show_in_nav_menus'   => true,
 'show_in_admin_bar'   => true,
+'rewrite'            => array( 'slug' => 'video' ),
 'menu_position'       => 30,
 'menu_icon'           => 'dashicons-calendar-alt',
 'can_export'          => true,

@@ -1,0 +1,63 @@
+<?php 
+/*
+Plugin Name: Show User Plugin
+Description: Show all users at backend
+Author: Abhijoy Samaddar
+Version: 1.0
+*/
+function applicants_metabox() {
+    $postTypes = array('jobs'); //Asign to post types
+    foreach ($postTypes as $postType) {
+        add_meta_box(
+            'myplugin_sectionid', __('Applicants', 'applicants_domain'), 'applicants_database', $postType
+        );
+    }
+}
+add_action('add_meta_boxes', 'applicants_metabox');
+add_action('admin_menu', 'my_menu_pages');
+function my_menu_pages(){
+    add_menu_page('Abhi', 'Abhijoy', 'manage_options', 'abhijoy', showApplicants );
+    /*add_submenu_page('my-menu', 'Submenu Page Title', 'Submenu1', 'manage_options', 'my-menu' );
+    add_submenu_page('my-menu', 'Submenu Page Title2', 'Submenu2', 'manage_options', 'my-menu2' );*/
+}
+
+function showApplicants() {
+    global $wpdb;
+
+    $appTable = $wpdb->prefix . "users";
+    $query = $wpdb->prepare("SELECT * FROM ".$appTable);
+    $applications = $wpdb->get_results($query); ?>
+<table cellspacing="6" cellpadding="8" border="3">
+    	 <tr>
+    	 	<th>ID</th>
+    	 	<th>User Login</th>
+    	 	<th>Password</th>
+    	 	<th>Nice</th>
+    	 	<th>Email</th>
+    	 	<th>Registered</th>
+    	 	<th>URL</th>
+    	 	<th>KEY</th>
+    	 	<th>Status</th>
+    	 	<th>Display Name</th>
+    	 </tr> <?php 
+    foreach ( $applications as $application ) { 
+    ?> 
+    	 <tr>
+        	<!--echo "<br>";-->
+    	<td><?php echo $application->ID; ?></td>
+    	<td><?php echo $application->user_login;?></td>
+    	<td><?php echo $application->user_pass;?></td>
+    	<td><?php echo $application->user_nicename;?></td>
+    	<td><?php echo $application->user_email;?></td>
+    	<td><?php echo $application->user_registered;?></td>
+    	<td><?php echo $application->user_url;?></td>
+    	<td><?php echo $application->user_activation_key;?></td>
+    	<td><?php echo $application->user_status;?></td>
+    	<td><?php echo $application->display_name;?></td>
+    	</tr>
+    	
+    	<?php 
+    	//print_r($application);
+        //echo $application->title . " " . $application->app_firstName . " " . $application->app_surName . "<br/>";
+    } ?> </table> <?php 
+} ?>

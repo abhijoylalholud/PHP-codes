@@ -1,0 +1,11 @@
+$('#checkout-box').click(function() { 
+  if ($(this).is(':checked')) 
+  { 
+    alert('hi');
+    $('#place_order').css('disabled',false);
+  } 
+  else 
+  { 
+    $('#place_order').css('disabled', true); 
+  } 
+});

@@ -1,0 +1,67 @@
+<form action="<?php echo $_SERVER['PHP_SELF']; ?>" id="form" method="post">
+  Post Title:<input type="text" id="title" name="title">
+  Post Content:<textarea id="post_content" name="content"></textarea>
+  <input type="button" name="submit" id="submit" value="Submit">
+</form>
+<?php 
+add_action('wp_head','url');
+function url() {
+?>
+<script type="text/javascript">
+var url = "<?php echo admin_url('admin-ajax.php'); ?>";
+
+</script>
+<?php } ?>
+<?php 
+//Add Ajax Actions
+//add_action('wp_post_via_ajax', 'post_via_ajax');
+add_action( 'wp_ajax_post_via_ajax', 'post_via_ajax' );
+add_action( 'wp_ajax_nopriv_post_via_ajax', 'post_via_ajax' );
+
+/* WP Insert Post Function
+----- */ 
+
+function post_via_ajax()
+{
+	$title = $_REQUEST['title'];
+    $content = $_REQUEST['content'];
+
+    // Create post object
+    $new_pva_post = array(
+        'post_type'     => 'post',
+        'post_title'    => wp_strip_all_tags($title),
+        'post_content'  => $content,
+        'post_status'   => 'publish'
+
+        //'post_author'   => 1,
+        
+    
+);
+    // Insert the post into the database
+    $thisid = wp_insert_post($new_pva_post); 
+    if ( is_wp_error( $thisid ) ) 
+    {
+        echo "Error";
+    }
+    else 
+    {
+      	echo "success";
+    }
+    die();
+}
+?>
+//jquery part
+jQuery( document ).ready( function ( $ ) {
+ $('#submit').click(function(event){
+    var data = {
+            'action': 'post_via_ajax',
+            'title': $('#title').val(),
+            'content': $('#post_content').val()
+        };
+
+        
+        jQuery.post(url, data, function(response) {
+            alert('Got this from the server: ' + response);
+        });
+    });
+});

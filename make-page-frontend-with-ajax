@@ -1,0 +1,72 @@
+<form action="<?php echo $_SERVER['PHP_SELF']; ?>" id="form_page" method="post">
+  Page Title:<input type="text" id="page_title" name="page_title">
+  Page Content:<textarea id="page_content" name="page_content"></textarea>
+
+  <input type="button" name="submit1" id="submit1" value="Submit">
+</form>
+<?php 
+add_action('wp_head','pageurl');
+function pageurl() {
+?>
+<script type="text/javascript">
+var pageurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+
+</script>
+<?php } ?>
+
+
+<?php
+add_action( 'wp_ajax_page_via_ajax', 'page_via_ajax' );
+add_action( 'wp_ajax_nopriv_page_via_ajax', 'page_via_ajax' );
+
+/* WP Insert Post Function
+----- */ 
+
+function page_via_ajax()
+{
+	$page_title = $_REQUEST['page_title'];
+    $page_content = $_REQUEST['page_content'];
+    
+
+   
+
+    // Create page object
+    $new_page_post = array(
+        'post_type'     => 'page',
+        'post_title'    => wp_strip_all_tags($page_title),
+        'post_content'  => $page_content,
+        //'post_mime_type' => $wp_filetype['type'],
+        //'image'         => $file,
+        'post_status'   => 'publish',
+        'comment_status' => 'closed',
+        'ping_status' => 'closed',
+        //'post_author'   => 1,
+    );
+    // Insert the post into the database
+    $this_id = wp_insert_post($new_page_post); 
+    if ( is_wp_error( $this_id ) ) 
+    {
+        echo "Error";
+    }
+    else 
+    {
+      	echo "success";
+	    
+	}
+}
+?>
+//jquery part
+jQuery( document ).ready( function ( $ ) {
+    $('#submit1').click(function(event){
+        var data1 = {
+            'action': 'page_via_ajax',
+            'page_title': $('#page_title').val(),
+            'page_content': $('#page_content').val(),
+            'image':$('#image').val()
+        };
+        
+        jQuery.post(pageurl, data1, function(response) {
+            alert('Got this from the server: ' + response);
+        });
+    });
+});

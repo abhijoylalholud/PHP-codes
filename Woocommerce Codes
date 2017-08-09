@@ -9,3 +9,18 @@
 
 //redirect to a category page using category ID//
 <?php echo get_term_link( 15, 'product_cat' ); ?>
+
+//get thumbnail image of product category
+<?php 
+    global $wp_query;
+
+    // get the query object
+    $cat = $wp_query->get_queried_object();
+
+    // get the thumbnail id using the queried category term_id
+    $thumbnail_id = get_woocommerce_term_meta( $cat->term_id, 'thumbnail_id', true ); 
+
+    // get the image URL
+    $image = wp_get_attachment_url( $thumbnail_id );         
+?> 
+<img src="<?php echo $image;?>" alt="">

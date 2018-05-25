@@ -1,3 +1,31 @@
+<form>
+				<div class="input-outer clearfix">
+					<div class="input-in">
+						<label>Name</label>
+						<input type="text" id="name" placeholder="" />
+					</div>
+						<div class="input-in">
+						<label>Email</label>
+						<input type="text" id="email" placeholder="" />
+					</div>
+					<div class="input-in">
+						<label>Telephone No.</label>
+						<input type="text" id="phone" placeholder="" />
+					</div>
+				</div>
+				<div class="input-outer clearfix">
+					<div class="input-text">
+						<label>Message</label>
+						<textarea class="" id="message"></textarea>
+					</div>
+				</div>
+				<div class="input-outer clearfix">
+				<div class="input-text">
+					<input type="button" id="submit" class="butsend" value="SEND"/>
+					<span id="msg"></span>
+				</div>
+				</div>
+			</form>
 <script>
 $(function (){
     $("#name").on("keypress", function(e){

@@ -1,0 +1,246 @@
+<script>
+$(function (){
+    $("#name").on("keypress", function(e){
+            if (e.which === 32 && !this.value.length) 
+            e.preventDefault();
+    });
+    $("#email").on("keypress", function(e){
+            if (e.which === 32 && !this.value.length) 
+            e.preventDefault();
+    });
+    $("#phone").on("keypress", function(e){
+            if (e.which === 32 && !this.value.length) 
+            e.preventDefault();
+    });
+    $("#message").on("keypress", function(e){
+            if (e.which === 32 && !this.value.length) 
+            e.preventDefault();
+    });
+    $("#submit").click(function(){
+    var name =    $("#name").val();
+    var email =   $("#email").val();
+    var phone =   $("#phone").val();
+    var message = $("#message").val();
+
+    var atpos=email.indexOf("@");
+    var dotpos=email.lastIndexOf(".");
+
+    var dataString =" ";
+        
+        if(name=="" && email=="" && phone=="" && message==""){
+            $("#msg").html("");
+
+            $("#name").css('border','');
+            $("#email").css('border','');
+            $("#phone").css('border','');
+            $("#message").css('border','');
+            
+
+            $("#name").css('border-bottom','2px solid red');
+            $("#email").css('border-bottom','2px solid red');
+            $("#phone").css('border-bottom','2px solid red');
+            $("#message").css('border-bottom','2px solid red');
+
+            $("#msg").html("<div class='alert alert-warning fst'>Please fill all the required field..</div>");
+            
+            }
+          else if(name=="")
+          {
+            $("#msg").html("");
+
+            $("#name").css('border','');
+            $("#email").css('border','');
+            $("#phone").css('border','');
+            $("#message").css('border','');
+
+            $("#name").css('border-bottom','2px solid red');
+            $("#msg").html("<div class='alert alert-warning fst'>Please fill the name field..</div>");
+            
+          }
+          else if(email=="")
+          {
+            $("#msg").html("");
+
+            $("#name").css('border','');
+            $("#email").css('border','');
+            $("#phone").css('border','');
+            $("#message").css('border','');
+
+            $("#email").css('border-bottom','2px solid red');
+
+            $("#msg").html("<div class='alert alert-warning fst'>Please fill the email field..</div>");
+            
+          }
+
+          else if(atpos<1 || dotpos<atpos+2 || dotpos+2>=email.length)
+          {
+            $("#msg").html("");
+
+            $("#name").css('border','');
+            $("#email").css('border','');
+            $("#phone").css('border','');
+            $("#message").css('border','');
+
+            $("#email").css('border-bottom','2px solid red');
+
+            $("#msg").html("<div class='alert alert-warning fst'>Please enter a valid email id..</div>");
+            
+          }
+
+          else if(phone=="")
+          {
+            $("#msg").html("");
+
+            $("#name").css('border','');
+            $("#email").css('border','');
+            $("#phone").css('border','');
+            $("#message").css('border','');
+
+            $("#phone").css('border-bottom','2px solid red');
+
+            $("#msg").html("<div class='alert alert-warning fst'>Please fill the phone number field..</div>");
+            
+          }
+
+          else if(isNaN(phone))
+          {
+            $("#msg").html("");
+
+            $("#name").css('border','');
+            $("#email").css('border','');
+            $("#phone").css('border','');
+            $("#message").css('border','');
+
+            $("#phone").css('border-bottom','2px solid red');
+
+            $("#msg").html("<div class='alert alert-warning fst'>Please enter a valid telephone number..</div>");
+            
+          }
+
+          else if(message=="")
+          {
+            $("#msg").html("");
+
+            $("#name").css('border','');
+            $("#email").css('border','');
+            $("#phone").css('border','');
+            $("#message").css('border','');
+
+            $("#message").css('border-bottom','2px solid red');
+
+            $("#msg").html("<div class='alert alert-warning fst'>Please fill the message field..</div>");
+            
+          }
+        
+        else{
+            $("#name").css('border-bottom','');
+            $("#email").css('border-bottom','');
+            $("#phone").css('border-bottom','');
+            $("#message").css('border-bottom','');
+            $("#msg").html("");
+
+
+
+        dataString ='name='+ name + '&email='+ email + '&phone='+ phone + '&message='+ message;
+        
+        // AJAX Code To Submit Form.
+            $.ajax({
+                type: "POST",
+                url: "ajax-submit.php",
+                data: dataString,
+                cache: false,
+                success: function(result){
+                    $("#msg").html(result);
+                    var xSeconds = 10000; // 1 second
+                    setTimeout(function() {
+                        $('#msg').fadeOut('slow');
+                    }, xSeconds);
+                }, 
+                error: function(result){
+                    alert(result);
+                },
+            });
+        }
+    });
+});
+</script>
+
+in ajax file
+<?php
+//die('hello');
+if(isset($_POST)){
+    $name= $_POST['name'];
+    $email=$_POST['email'];
+    $phone=$_POST['phone'];
+    $message=$_POST['message'];
+      
+
+      $recipient = 'hello@penn.co.uk';
+      $uid = md5(uniqid(time()));
+      $subject = ' Contact Form';
+      $body = '<div style="width: 100%; margin: 0 auto; vertical-align: middle; background-color:#DBBB0A;padding-top: 12px;padding-bottom: 12px; ">
+                    <table cellpadding="0" cellspacing="0" style="width:550px; verticle-align:middle; background-color:#FFFFFF;margin: 0 auto;">
+                      <tr>
+                         <td style=" width:120px; padding:5px 20px 5px 20px;">
+                          <strong>Name :</strong>
+                         </td>
+                          <td style=" padding:5px 20px 5px 20px;">
+                           <p style="text-transform: uppercase;">'.$name.'</p>
+                         </td>
+                       </tr>
+                       <tr>
+                         <td style=" width:120px; padding:5px 20px 5px 20px;">
+                          <strong>Email :</strong>
+                         </td>
+                          <td style=" padding:5px 20px 5px 20px;">
+                           <p style="text-transform: uppercase;">'.$email.'</p>
+                         </td>
+                       </tr>  
+
+                       <tr>
+                         <td style=" width:120px; padding:5px 20px 5px 20px;">
+                          <strong>Telephone Number:</strong>
+                         </td>
+                          <td style=" padding:5px 20px 5px 20px;">
+                           <p style="text-transform: uppercase;">'.$phone.'</p>
+                         </td>
+                       </tr> 
+
+                       
+
+                       <tr>
+                         <td style=" width:120px; padding:5px 20px 5px 20px;">
+                          <strong>Message :</strong>
+                         </td>
+                          <td style=" padding:5px 20px 5px 20px;">
+                           <p style="text-transform: uppercase;">'.$message.'</p>
+                         </td>
+                       </tr>                     
+                </table>
+
+                </div>';
+
+
+
+       $headers = 'From: Coachworks <'.$email.'>' . "\r\n";
+       $headers .= "MIME-Version: 1.0\r\n";
+       $headers .= "Content-Type: multipart/mixed; boundary=\"".$uid."\"\r\n";
+       $headers .= "This is a multi-part message in MIME format.\r\n";
+       $headers .= "--".$uid."\r\n";
+       $headers .= "Content-type:text/html; charset=iso-8859-1\r\n";
+       $headers .= "Content-Transfer-Encoding: 7bit\r\n";
+
+
+       if (mail($recipient, $subject, $body, $headers))
+        {
+           $a= "<div class='alert alert-success fst' role='alert'>
+                Thank you, your enquiry has been sent.
+                </div>";
+           echo $a;
+        }
+        else
+        {
+           echo "Message is not sent";
+        }
+  }
+?>

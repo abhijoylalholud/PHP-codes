@@ -114,7 +114,7 @@ function pippin_get_image_id($image_url) {
     [1] => width</em>,
     [2] => height</em>,
     [4] => is_intermediate)
- ?>
+?>
 
     <img src="<?php the_post_thumbnail_url(); ?>" alt="">               // without parameter -> 'post-thumbnail'
     <img src="<?php the_post_thumbnail_url( 'thumbnail' ); ?>" alt="">  // Thumbnail (default 150px x 150px max)
@@ -538,6 +538,25 @@ if( ! function_exists( 'fix_no_editor_on_posts_page' ) ) {
     }
     add_action( 'edit_form_after_title', 'fix_no_editor_on_posts_page', 0 );
  }
+?>
+
+//array and object diff
+<?php 
+    //for array
+    global $wpdb;
+
+    $result = $wpdb->get_results ( " SELECT * FROM  $wpdb->posts WHERE post_type = 'page' " ,ARRAY_A );
+    foreach ( $result as $page ){
+       echo $page['ID'].' , ';
+       echo $page['post_title'].'<br/>';
+    }
+
+    //for object
+    $result = $wpdb->get_results ( " SELECT * FROM  $wpdb->posts WHERE post_type = 'page' " , OBJECT );
+    foreach ( $result as $page ){
+       echo $page->ID.' , ';
+       echo $page->post_title.'<br/>';
+    }
 ?>
 
 
@@ -983,6 +1002,7 @@ foreach(get_the_tags($post->ID) as $tag) ?>
 <!-- image path --> 
 <?php echo esc_url(get_template_directory_uri()); ?>/assets/
 <?php echo THEME_DIR_URI .'/assets/images/inner_banner.jpg'; ?>
+<?php echo THEME_DIR_URI; ?>/assets/images/inner_banner.jpg'; ?>
 <?php bloginfo('template_directory'); ?>/assets/
 
 //comment form
@@ -1128,22 +1148,14 @@ drop down category fetch
 //tor remove p from content
 <?php remove_filter( 'the_content', 'wpautop' ); ?>
 
-<section class="error-404 not-found">
-    <header class="page-header">
-        <h1 class="page-title"><?php _e( 'Oops! That page can&rsquo;t be found.', 'twentyseventeen' ); ?></h1>
-    </header><!-- .page-header -->
-    <div class="page-content">
-        <p><?php _e( 'It looks like nothing was found at this location. Maybe try a search?', 'twentyseventeen' ); ?></p>
-        <?php get_search_form(); ?>
-    </div><!-- .page-content -->
-</section><!-- .error-404 -->
+<?php _e( 'Oops! That page can&rsquo;t be found.', 'twentyseventeen' ); ?>
 
 //for search bar in 404
 <style>
-svg.icon.icon-search {
-    height: 50px;
-    display: none;
-}
+    svg.icon.icon-search {
+        height: 50px;
+        display: none;
+    }
 </style>
 
 <?php 
@@ -1399,18 +1411,22 @@ function all_reaturedproducts(){
 //--------------For popular post------------------
 
 <?php
-function setPostViews($postID) {
-    $countKey = 'post_views_count';
-    $count = get_post_meta($postID, $countKey, true);
-    if($count==''){
-        $count = 0;
-        delete_post_meta($postID, $countKey);
-        add_post_meta($postID, $countKey, '0');
-    }else{
-        $count++;
-        update_post_meta($postID, $countKey, $count);
+    function setPostViews($postID) {
+        $countKey = 'post_views_count';
+        $count = get_post_meta($postID, $countKey, true);
+        if($count==''){
+            $count = 0;
+            delete_post_meta($postID, $countKey);
+            add_post_meta($postID, $countKey, '0');
+        }else{
+            $count++;
+            update_post_meta($postID, $countKey, $count);
+        }
     }
-}
+    $popularpost = new WP_Query( array( 'post_type' => 'blog', 'posts_per_page' => 4, 'meta_key' => 'post_views_count', 'orderby' => 'meta_value_num', 'order' => 'DESC'  ) );
+    while ( $popularpost->have_posts() ) : $popularpost->the_post();                    
+?>
+<?php 
 add_action( 'wp_ajax_get_product_dropdown', 'get_product_dropdown' );
 add_action( 'wp_ajax_nopriv_get_product_dropdown', 'get_product_dropdown' );
 
@@ -1502,12 +1518,10 @@ Call :
 
 //for first space validation in contact form
 <script type="text/javascript">
-$("#msg-form").on("keypress", function(e) 
-  {
-   
+$("#msg-form").on("keypress", function(e) {
     if (e.which === 32 && !this.value.length) //for no space ommit !this.value
-       e.preventDefault();
-  });
+        e.preventDefault();
+});
 </script>
 
 <?php 
@@ -1838,10 +1852,18 @@ $(document).ready(function(){
     </div>
 <?php endforeach; ?>
 
+//get attribute value and store in a hiden input
 <script>
 (function($){
-    
-   
+    $(".project-type").click(function(){
+        var project_type =$(this).attr('target-value');
+        $("#project-type-1").val(project_type);
+    });
+})(jQuery);
+</script>
+
+<script>
+(function($){  
    $(".submit-details" ).click(function() {
     var date = $(this).attr('data-date');
     var time = $(this).attr('data-time');
@@ -2211,6 +2233,9 @@ fjs.parentNode.insertBefore(js, fjs);
     $custom_logo_id = get_theme_mod( 'custom_logo' ); 
     $image = wp_get_attachment_image_src( $custom_logo_id , 'full' ); ?>
     <img src="<?php echo $image[0]; ?>">
+
+//background image code
+<img src="<?php echo get_background_image(); ?>" alt="">
 
 //for preg replace
 <?php 
@@ -2790,6 +2815,13 @@ function custom_twitter_struc($consumerKey,$consumerSecret,$accessToken,$accessT
     $results = $wpdb->get_results( "SELECT * FROM $tablename WHERE User_Id = '$user';" );
 ?>
 
+//get_result example
+<?php 
+$results = $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."em_locations WHERE location_name='".$_POST['location_name']."' AND location_status='1' ORDER BY location_id ASC", ARRAY_A );
+
+$results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options WHERE option_id = 1", OBJECT );
+?>
+
 <script>
 $(function() { 
     $(".howItNav li a ").on("click", function( e ) { 
@@ -2827,63 +2859,80 @@ $(function() {
 
 //scroll down menu
 <script>
-$('a[href*="#"]:not([href="#"])').click(function() {
-    $('body').removeClass('navbar-active');
-  if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
-    var target = $(this.hash);
-    target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
-    if (target.length) {
-      $('html, body').animate({
-        scrollTop: target.offset().top -120
-      }, 1000);
-      return false;
-    }
-  }
-});
++function($){
+    $('a[href*="#"]:not([href="#"])').click(function() {
+        /* 
+            a[href*=#] 
+            get all anchors <a> that contains # in href but with:
+
+            :not([href=#])
+            exclude anchors with href exactly equals to #
+        */
+        $('body').removeClass('navbar-active');
+        if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+            var target = $(this.hash);
+            target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+            if (target.length) {
+                $('html, body').animate({
+                    scrollTop: target.offset().top -120
+                }, 1000);
+                return false;
+            }
+        }
+    });
+}(jQuery);
 </script>
 
+<script>
+jQuery(document).ready(function($) {
+    $('.menu-item > a').click(function() {
+        if (location.pathname.replace(/^\//,'')==this.pathname.replace(/^\//,'') && location.hostname == this.hostname){
+            var target = $(this.hash);
+            target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+            if (target.length) {
+                $('html,body').animate({
+                    scrollTop: target.offset().top - 40
+                }, 900);
+                return false;
+            }
+        }
+    });
+});
+</script>
 
 //////How to create a post and some field in the post by coding/////
 
 <?php
-    if(isset($_POST['submit']))
-    {
-        $userdata= array(
-            'post_title'    => wp_strip_all_tags( $_POST['post_title'] ),
-            'post_content'  => $_POST['post_content'],
-            'post_status'   => 'publish',
-            'post_author'   => 1
-        );
-        $thisid = wp_insert_post($userdata, true ); 
-        if ( is_wp_error( $thisid ) ) {
-            echo "Error";
-        }
-        else {
-            $meta_table = $wpdb->prefix . 'postmeta';
-            $wpdb->insert(  $meta_table, array( 
-                'post_id' => $thisid, 
-                'meta_key' => 'companyname',
-                'meta_value' => $_POST['companyname']
-            ));
-            $wpdb->insert( 
-                                $meta_table, 
-                                array( 
-                                        'post_id' => $thisid,
-                                        'meta_key' => 'requermant',
-                                        'meta_value' => $_POST['requermant'] 
-                                    )
-                            );
-
-                $wpdb->insert( 
-                                $meta_table, 
-                                array( 
-                                        'post_id' => $thisid, 
-                                        'meta_key' => 'companyaddress',
-                                        'meta_value' => $_POST['companyaddress'] 
-                                    )
-                            ); 
-            }
+if(isset($_POST['submit'])) {
+    $userdata= array(
+        'post_title'    => wp_strip_all_tags( $_POST['post_title'] ),
+        'post_content'  => $_POST['post_content'],
+        'post_status'   => 'publish',
+        'post_author'   => 1
+    );
+    $thisid = wp_insert_post($userdata, true ); 
+    if ( is_wp_error( $thisid ) ) {
+        echo "Error";
     }
+    else {
+        $meta_table = $wpdb->prefix . 'postmeta';
+        $wpdb->insert(  $meta_table, array( 
+            'post_id' => $thisid, 
+            'meta_key' => 'companyname',
+            'meta_value' => $_POST['companyname']
+        ));
+        $wpdb->insert( $meta_table, array( 
+            'post_id' => $thisid,
+            'meta_key' => 'requermant',
+            'meta_value' => $_POST['requermant'] 
+        ));
+        $wpdb->insert( $meta_table, array( 
+            'post_id' => $thisid, 
+            'meta_key' => 'companyaddress',
+            'meta_value' => $_POST['companyaddress'] 
+        )); 
+    }
+}
 ?>
 
 //ajax in wordpress
@@ -2920,6 +2969,43 @@ https://designmodo.com/wpdb-object-wordpress/
   <?php }?>
 </div>
 //////////////////////////////////////////////////
+
+
+//session code 
+<?php 
+function register_my_session() { 
+    if( !session_id() ) { 
+        session_start(); 
+    } 
+} 
+add_action('init', 'register_my_session');
+?>
+
+//simple query example in wordpress
+<?php 
+    $user= get_current_user_id();
+    $tablediplm = $wpdb->prefix.'diplm';
+
+    $uni=implode(",",$_POST['uni']);
+    $spe=implode(",",$_POST['spec']);
+    $diplm =implode(",",$_POST['diplm']);
+    $dip_yr=implode(",",$_POST['dipyr']);
+
+    $diplma_cunt = $wpdb->get_var( "SELECT COUNT(*) FROM $tablediplm WHERE usr_id = '$user' ;" );
+    if($diplma_cunt<1){
+       $sqldiplm = "INSERT INTO $tablediplm (usr_id,uni,spe,diplm_nm,dip_yr) VALUES ('$user','$uni','$spe','$diplm','$dip_yr')";
+       $wpdb->query($sqldiplm);
+    }else{
+        $sqldiplmup = "UPDATE $tablediplm SET uni='$uni', spe='$spe', diplm_nm='$diplm', dip_yr='$dip_yr' WHERE usr_id='$user'";
+        $wpdb->query($sqldiplmup);
+    }
+?>
+
+
+//Set the parent of Page 15 to Page 7.
+<?php 
+    $wpdb->query( $wpdb->prepare( " UPDATE $wpdb->posts SET post_parent = %d WHERE ID = %d AND post_status = %s",7, 15, 'publish' ) );
+?>
 
 ///How to display viewers of a youtube video/////
 
@@ -3203,7 +3289,7 @@ add_action( 'wp_ajax_user_check', 'user_check' );
 add_action( 'wp_ajax_nopriv_user_check', 'user_check' );
 function user_check(){
     $exists = email_exists($_POST['emle']);
-    //$userexist = username_exists($_POST['usrnme']); (for username duplicate check)
+    $userexist = username_exists($_POST['usrnme']); //for username duplicate check
     if($exists){
         echo 'false';
     }else{
@@ -3239,8 +3325,9 @@ if(!empty($email)){
         $headers1 = "MIME-Version: 1.0\r\n";
         $headers1 .= "Content-type:text/html;charset=UTF-8\r\n";
         $headers1 .= "From: Tramposaurus Treks <no-reply@tramposaurustreks.com>\r\n" .
-        "Reply-To: no-reply@tramposaurustreks.com\r\n" .
-        "X-Mailer: PHP/" . phpversion();
+                     "Cc: abhijoy.samaddar@esolzmail.com"
+                     "Reply-To: no-reply@tramposaurustreks.com\r\n" .
+                     "X-Mailer: PHP/" . phpversion();
         mail($recipient1, $subject1, $body1, $headers1);
     }
   }
@@ -3268,7 +3355,18 @@ if(!empty($email)){
 </script>
 
 
-
+<div class="contact_inner_full">
+    <div class="field_item">
+        <label>Email Address</label>
+        <input type="text" id="reset_eml" name="reset_eml" placeholder="Enter Your Email Address" class="cus_inpt">
+        <span class="error_txtft" style="color:red"></span>
+        <input type="hidden" value="" id="err_cntt">
+    </div>
+    <div class="form_btn">
+        <input type="submit" value="reset password" class="cust_frm btndis" name="reset_submit" id="reset_submit" disabled>
+        <p class="resetokk"><span></span></p>
+    </div>  
+</div>
 <!-- forgot email exists or not -->
 <?php 
     add_action( 'wp_ajax_fgt_email', 'fgt_email' );
@@ -3360,8 +3458,7 @@ function my_login_logo() { ?>
             background-size: contain !important;
             background-position : center center !important;
         }
-        .interim-login.login h1 a
-        {
+        .interim-login.login h1 a{
             width: 180px !important;
         }
          input#wp-submit {
@@ -3531,14 +3628,17 @@ $message = "<h3>".$Message."</h3><br/>"."<b>Name:</b> ".$fname." ".$lname."<br/>
 ?>
 
 //append code jquery
-$("ul.f-iphone.clearfix.group").append('<li class="f-box f4 animated fadeInRight visible" data-animation="fadeInRight" data-animation-delay="800"><div class="f-box-logo"><i class="fa fa-cloud-upload"></i></div><div class="f-box-head">Proprietary Database Access &amp; Search</div><div class="f-box-desc"></div></li>');
+<script>
++function($){
+    $("ul.f-iphone.clearfix.group").append('<li class="f-box f4 animated fadeInRight visible" data-animation="fadeInRight" data-animation-delay="800"><div class="f-box-logo"><i class="fa fa-cloud-upload"></i></div><div class="f-box-head">Proprietary Database Access &amp; Search</div><div class="f-box-desc"></div></li>');
+}(jQuery);
+</script>
 
 //custom gallery code
 <?php 
 $files = get_post_meta( get_the_ID(), $file_list_meta_key, 1 );   
-foreach ( (array) $files as $attachment_id => $attachment_url ) 
-    {  
-        echo wp_get_attachment_image( $attachment_id, $img_size ); 
+foreach ( (array) $files as $attachment_id => $attachment_url ) {  
+    echo wp_get_attachment_image( $attachment_id, $img_size ); 
 }
 ?>
 
@@ -3910,16 +4010,17 @@ add plugin -> https://wordpress.org/plugins/comet-cache/
 ?>
 
 <!-- html to wordpress -->
-css,js,images -> replace
-style.css -> edit
-header.php -> replace 
-footer.php -> replace
-front-page.php -> replace
-home page set
-images path set
-folder permisssion
-permalink & htaccess set
-screenshot.png -> replace
+1. folder permisssion
+2. css,js,images -> replace
+3. style.css -> edit
+4. header.php -> replace 
+5. footer.php -> replace
+6. front-page.php -> replace
+7. css, js enqueue in function.php
+8. home page set
+9. images path set
+10.permalink & htaccess set
+11.screenshot.png -> replace
 
 <?php  
     wp_editor($mail_content, "msg",array('wpautop'=>false,'media_buttons' => true)); 
@@ -3954,3 +4055,428 @@ mail($to, $subject, $message, $headers);
 
 //woocommerce cart update ajax
 <?php echo WC()->cart->get_cart_contents_count(); ?>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    jQuery(document).ready( function($) {
+
+   $(".user_vote").click( function(e) {
+      e.preventDefault(); 
+      post_id = jQuery(this).attr("data-post_id")
+      nonce = jQuery(this).attr("data-nonce")
+
+      $.ajax({
+         type : "post",
+         dataType : "json",
+         url: '<?php echo site_url(); ?>/wp-admin/admin-ajax.php',
+         data : {action: "my_user_vote", post_id : post_id, nonce: nonce},
+         success: function(response) {
+            if(response.type == "success") {
+               $("#vote_counter").html(response.vote_count)
+            }
+            else {
+               alert("Your vote could not be added")
+            }
+         }
+      });   
+
+   });
+
+});
+</script>
+
+/**
+ * Adds WooCommerce support
+ */
+<?php 
+add_action( 'after_setup_theme', 'woocommerce_support' );
+function woocommerce_support() {
+    add_theme_support( 'woocommerce' );
+}
+
+add_action( 'init', 'my_script_enqueuer' );
+
+function my_script_enqueuer() {
+ 
+   wp_localize_script( 'my_voter_script', 'myAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));        
+
+   wp_enqueue_script( 'jquery' );
+   wp_enqueue_script( 'my_voter_script' );
+
+}
+add_action("wp_ajax_my_user_vote", "my_user_vote");
+add_action("wp_ajax_nopriv_my_user_vote", "my_must_login");
+
+function my_user_vote() {
+
+   if ( !wp_verify_nonce( $_REQUEST['nonce'], "my_user_vote_nonce")) {
+      exit("No naughty business please");
+   }   
+
+   $vote_count = get_post_meta($_REQUEST["post_id"], "votes", true);
+   $vote_count = ($vote_count == '') ? 0 : $vote_count;
+   $new_vote_count = $vote_count + 1;
+
+   $vote = update_post_meta($_REQUEST["post_id"], "votes", $new_vote_count);
+
+   if($vote === false) {
+      $result['type'] = "error";
+      $result['vote_count'] = $vote_count;
+   }
+   else {
+      $result['type'] = "success";
+      $result['vote_count'] = $new_vote_count;
+   }
+
+   if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+      $result = json_encode($result);
+      echo $result;
+   }
+   else {
+      header("Location: ".$_SERVER["HTTP_REFERER"]);
+   }
+
+   die();
+
+}
+
+function my_must_login() {
+   echo "You must log in to vote";
+   die();
+}
+?>
+
+//comment structure
+<!-- https://wp-ecommerce.net/easy-wordpress-smtp-send-emails-from-your-wordpress-site-using-a-smtp-server-2197#comment-31580 -->
+
+//check uncnheck radio in jquery
+<script>
+$(function(){
+    $('.radio input[type="radio"]').click(function() {
+        if ($("#cemetery1").is(':checked')) {
+            $(".datum-cstm").hide();
+            $('.redan').show();
+            $('#grav1,#grav2,#grav3').prop('checked', false);
+        }
+        else{
+            $(".datum-cstm").show();
+            $('.redan').hide();
+            $('#redan1,#redan2,#redan3,#redan4').prop('checked', false);
+        }
+    });
+});
+</script>
+
+//checkbox validation jquery plugin
+<script>
+$(document).ready(function () {
+    $('#formid').validate({
+        rules: {
+            'test[]': {
+                required: true,
+                maxlength: 2
+            }
+        },
+        messages: {
+            'test[]': {
+                required: "You must check at least 1 box",
+                maxlength: "Check no more than {0} boxes"
+            }
+        }
+        errorPlacement: function(error, element) {
+            if ( element.is(":checkbox") ) {
+                error.appendTo( element.parents('.container') );
+            }
+            else { // This is the default behavior 
+                error.insertAfter( element );
+            }
+        }
+    });
+});
+</script>
+
+//setting your cookies there
+
+<?php
+function set_new_cookie() {
+    if(!session_id()){
+        session_start();
+    }
+    $cookie_name = "butterbrand";
+    $cookie_value = 1;
+    if(isset($_COOKIE['butterbrand'])):
+        $_SESSION['butterbrand']=1;
+    else:
+        unset($_SESSION);
+        setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/");
+    endif;
+}
+add_action( 'init', 'set_new_cookie');
+?>
+
+
+<?php if(!isset($_SESSION['digitall'])): ?>
+    <!-- The Modal -->
+    <div class="modal welcome fade" id="myModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal body -->
+                <div class="modal-body welcome_body">
+                <div class="input_container">
+                  <div class="chk_con noselect">
+                    <label class="chk-check bg">
+                      <input type="checkbox" name="chk">
+                      <span></span> </label>
+                    <div class="chck_cnt">
+                        <?php the_field('cookie_modal_content'); ?>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+              <div class="modal-footer welcome_footer">
+                <button type="button" class="btn btn-basic home_continue" disabled>
+                  continue <span><img src="<?php echo esc_url(get_template_directory_uri()); ?>/images/submit-arrow.png" alt=""></span>
+                </button>
+              </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+<script>
++function($){
+    $("#myModal").modal({backdrop: false});
+    $('input[type="checkbox"]').click(function(){
+        if($(this).is(":checked")){
+            $('.home_continue').attr("data-dismiss", "modal");
+            $('.home_continue').prop('disabled',false);
+            $('.home_continue').css('cursor', 'pointer');
+        }
+        else if($(this).is(":not(:checked)")){
+            $('.home_continue').removeAttr("data-dismiss", "modal");
+            $('.home_continue').prop('disabled',true);
+            $('.home_continue').css('cursor', 'no-drop');
+        }
+    });
+}(jQuery);
+</script>
+
+<?php
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $permited  = array('jpg', 'jpeg', 'png', 'gif');
+        $file_name = $_FILES['image']['name'];
+        $file_size = $_FILES['image']['size'];
+        $file_temp = $_FILES['image']['tmp_name'];
+
+        $div = explode('.', $file_name);
+        $file_ext = strtolower(end($div));
+        $unique_image = substr(md5(time()), 0, 10).'.'.$file_ext;
+        $uploaded_image = "uploads/".$unique_image;
+
+        if (empty($file_name)) {
+            echo "<span class='error'>Please Select any Image !</span>";
+        }
+        elseif ($file_size >1048567) {
+            echo "<span class='error'>Image Size should be less then 1MB!</span>";
+        } 
+        elseif (in_array($file_ext, $permited) === false) {
+            echo "<span class='error'>You can upload only:-".implode(', ', $permited)."</span>";
+        } 
+        else{
+            move_uploaded_file($file_temp, $uploaded_image);
+            $query = "INSERT INTO tbl_image(image) VALUES('$uploaded_image')";
+            $inserted_rows = $db->insert($query);
+            if ($inserted_rows) {
+                echo "<span class='success'>Image Inserted Successfully.</span>";
+            }
+            else {
+                echo "<span class='error'>Image Not Inserted !</span>";
+            }
+        }
+    }
+?>
+
+
+<!-- PDF attachement for contact form 7 -->
+1. Upload the attachment to media
+2. Place the link in attachment textbox -> ../wp-content/uploads/2018/06/Pdf_name.pdf
+
+<div class="row">
+    <div class="col-sm-6 kont-input">
+        <div class="profile-input">[text* name class:form-input placeholder "Mia Mustermann"]<span class="highlight"></span>
+            <span class="bar"></span>
+            <label>Name</label>
+        </div>
+    </div>
+    <div class="col-sm-6 kont-input">
+        <div class="profile-input">[email* email-845 class:form-input placeholder "mia@mustermann.com"]<span class="highlight"></span>
+            <span class="bar"></span>
+            <label>Email</label>
+        </div>
+    </div>
+    <div class="col-sm-6 kont-input">
+        <div class="profile-input">[tel* tel-325 class:form-input placeholder "+49 - (0)171 - 9999"]<span class="highlight"></span>
+            <span class="bar"></span>
+            <label>Telefonnummer</label>
+        </div>
+    </div>
+    <div class="col-sm-6 kont-input">
+        <div class="profile-input">[text* company class:form-input placeholder "Mustermann Manufaktur"]<span class="highlight"></span>
+            <span class="bar"></span>
+            <label>Unternehmen</label>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-sm-12">
+        <div class="profile-input profile-cust">
+[textarea textarea-293 class:form-input placeholder "Bitte hier eintippen..."]          
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>Nachricht</label>
+            <div class="submit-outer">[submit class:submit-btn-frm]
+            </div>
+        </div>
+    </div>
+    <div class="com-sm-12">
+        <div class="custom-chk-bx">
+            <label class="chk-bx-area">
+                [checkbox* checkbox-148 "Sie erklaren sick damit einverstanden. dass Wire Daten zur Bearbeitung Wires Anliegens verwendet werden. Informationen and Widerrufshinwetse linden Sie in der <a href=&quot;#&quot;>Datenschutzerklarung</a>."]
+                <!--<span class="checkmark"></span>-->
+            </label>
+        </div>
+    </div>
+</div>
+
+
+<!-- new mail template -->
+<!DOCTYPE html>
+<html style="font-family: Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #454545;
+  margin: 0;
+  padding: 0;
+  height: 100%;">
+<head>
+    <meta charset="UTF-8">
+</head>
+<!-- <body> -->
+
+<body style="margin:0px; padding: 0px;">
+    <table style="margin: 20px auto 40px; padding: 0px 0px; border: 0px; border-spacing: 0px;font-size: 14px; color: #454545; vertical-align: middle; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif;" width="720" cellspacing="0" cellpadding="0" border="0" bgcolor="#6faf44" align="center">
+       
+        <tr>
+            <td style="padding: 20px 10px 0px; text-align:center; vertical-align: middle;" align="center">
+                <img src="http://esolz.co.in/lab5/wordpress/AventaSeniorLivingFranchising/wp-content/uploads/2018/01/logo.png" alt="logo" width="134" height="auto">
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 20px 30px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size: 14px;color: #6c6c6c;vertical-align: middle;text-align:left;" align="center">
+                <table style="width:100%; margin: 0px auto; padding: 0px 30px 0px; border-left: 0px; border-right: 0px; border-top: 2px solid #ffbc00; border-bottom: 2px solid #ffbc00; border-spacing: 0px;font-size: 14px; color: #6c6c6c; vertical-align: middle; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif;" cellspacing="0" cellpadding="0" border="0" bgcolor="#f5f5f5" align="center">
+                    <tr>
+                        <td style="width:100%;padding: 50px 0px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size: 14px;color: #6c6c6c;vertical-align: middle;text-align:left;" align="center">
+                              Dear Admin,<br>You have received email form [text-254].
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%;padding: 30px 0px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size: 14px;color: #6c6c6c;vertical-align: middle;text-align:left;" align="center">
+                              <strong>Name:</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%;padding: 5px 0px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size: 14px;color: #6c6c6c;vertical-align: middle;text-align:left;" align="center">
+                              [text-254]
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%;padding: 30px 0px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size: 14px;color: #6c6c6c;vertical-align: middle;text-align:left;" align="center">
+                              <strong>Email:</strong>
+                        </td>
+                    </tr>
+                 
+                    <tr>
+                        <td style="width:100%;padding: 5px 0px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size: 14px;color: #6c6c6c;vertical-align: middle;text-align:left;" align="center">
+                             <a target="_blank" href="mailto:[email-49]" style="text-decoration: none; padding: 0px 0px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size: 14px;display: inline-block;vertical-align: middle;text-align:left; color:#03bbd2;border: none;">[email-49]</a>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%;padding: 30px 0px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size: 14px;color: #6c6c6c;vertical-align: middle;text-align:left;" align="center">
+                              <strong>How did you hear about us?</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:100%;padding: 5px 0px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size: 14px;color: #6c6c6c;vertical-align: middle;text-align:left;" align="center">
+                              [text-602]
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 50px 0px 50px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size: 14px;color: #6c6c6c;vertical-align: middle;text-align:left;" align="center">
+                              Take Care, <br>Aventa Senior Living Franchising
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 40px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size: 14px;color: #6c6c6c;vertical-align: middle;text-align:left;" align="center">
+                <table style="width:100%; margin: 0px auto; padding: 0px 30px 0px; border-spacing: 0px;font-size: 12px; color: #6c6c6c; vertical-align: middle; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif;" cellspacing="0" cellpadding="0" border="0" align="center">
+                    <tr>
+                        <td style="padding: 0px 0px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size:10px;color: #fff;vertical-align: middle;text-align:center;font-weight: bold;" align="center">Aventa Senior Living Franchising
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0px 0px; font-family:Century Gothic,Verdana, Geneva, sans-serif,Apple Gothic,AppleGothic,URW Gothic L,Avant Garde,Futura,sans-serif; font-size:10px;color: #fff;vertical-align: middle;text-align:center;" align="center">
+                        </td>
+                    </tr>
+                    <tr>
+                    </tr>
+                    <tr>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+
+//comment number
+<?php echo get_comments_number(); ?>
+
+//Add theme support for Custom Logo.
+<?php 
+    add_theme_support( 'custom-logo', array(
+        'width'       => 250,
+        'height'      => 250,
+        'flex-width'  => true,
+    ) );
+?>
+
+<!-- define constants in php -->
+<?php 
+    define('THEME_DIR_PATH', get_template_directory());
+    define('THEME_DIR_URI', get_template_directory_uri());
+?>
+
+//no of posts by an author
+<?php 
+    $type=array('post','videos');
+    printf( __( 'Total Posts : %d', 'wpdocs_textdomain' ), count_user_posts( get_current_user_id() , $type) ); 
+?>
+
+<img src="<?php echo get_avatar_url(get_current_user_id()); ?>" alt="">
+
+<script>
+$("#slct").selectmenu({
+    change: function(event, ui) {
+        var cat_id=(ui.item.value);
+        var data = { 
+            'action': 'etf_post', 
+            'category': cat_id
+        };
+        $.post('<?php echo admin_url( 'admin-ajax.php' );?>', data, function(response) { 
+            $('.add_row').html(response);
+        }); 
+    }
+});
+</script>
+
+on_submit: "$('.chatFig h3').html('Thank You ! Your Message has sent .');"

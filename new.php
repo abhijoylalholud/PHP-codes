@@ -53,11 +53,11 @@ if ( ! is_wp_error( $user_id ) ) {
     $query1 = new WP_Query( array( 'post_type' => 'video','order' => 'ASC','posts_per_page' => '5','post_status' => 'publish'  ) );
         if ( $query1->have_posts() ) {
             while ( $query1->have_posts()) {
-	            $query1->the_post();
-            
- ?> 
- <?php } }  wp_reset_postdata(); wp_reset_query(); ?> 
+	            $query1->the_post();           
+?> 
+<?php } } wp_reset_postdata(); wp_reset_query(); ?> 
 
+<?php 
 else { ?>
 <p><?php _e('Sorry, no posts matched your criteria.'); ?></p> <?php } ?>
 
@@ -73,7 +73,7 @@ else { ?>
 <img src="<?php echo wp_get_attachment_url( get_post_thumbnail_id($post->ID) ); ?>" alt="" />
 
 //ternary example
-<a href="<?php echo (get_field('view_all_work_link',93)) ? get_field('view_all_work_link',93) : "javascript:void(0);" ?>"></a>
+<a href="<?php echo (get_field('view_all_work_link',93)) ? get_field('view_all_work_link',93) : 'javascript:void(0)'; ?>"></a>
 
 <?php 
  if ( has_post_thumbnail() ) { 
@@ -96,7 +96,10 @@ or <?php  array('class'=>'img-fluid'); ?>
 function pippin_get_image_id($image_url) {
     global $wpdb;
     $attachment = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $image_url )); 
-    return $attachment[0]; 
+    if(isset($attachment[0]) && $attachment[0])
+        return $attachment[0]; 
+    else
+        return '';
 }
 ?>
 <?php $img_id = pippin_get_image_id(get_field('banner_image')); ?>
@@ -274,6 +277,9 @@ add_action( 'init', 'custom_new_menu' );
 @media (min-width: 1366px) { }
 @media (min-width: 1600px) { }
 </style>
+
+//inline css
+<div class="" style="background-image: url(<?php the_field('ty_sctn_bck_img'); ?>); background-size: cover;">
 
 <!--loader-->
 <div id="preloader"> 
@@ -486,7 +492,7 @@ function user_check(){
 <?php endwhile; ?>
 
 //post content
-<?php $pg=get_post(); echo $pg->post_content;?>
+<?php $pg=get_post($post->ID); echo $pg->post_content;?>
 
 //tab dynamic 
 <ul class="nav nav-tabs">
@@ -583,6 +589,8 @@ foreach( $images as $image ): ?>
     <img src="<?php echo $image['url']; ?>" alt="<?php echo $image['alt']; ?>" />
 <?php endforeach; ?>
 
+//get image path of uploads folder
+<img src="<?php echo esc_url(content_url()); ?>/uploads/2018/07/user.png" alt="" />
 
 //page id for post page
 <?php $page_id = get_option( 'page_for_posts' ); ?>
@@ -690,7 +698,7 @@ the code and
 ?>
 
 
-//no of views
+//post views count
       //in function page
 <?php 
 function fiftysix_postViews($post_ID) {
@@ -717,73 +725,73 @@ function fiftysix_postViews($post_ID) {
          
         //If statement, is just to have the singular form 'View' for the value '1'
         if($count == '1'){
-        return $count;
+            return $count;
         }
         //In all other cases return (count) Views
         else {
-        return $count;
+            return $count;
         }
     }
 }
 ?>
-     //in page
+and in page
 <?php echo fiftysix_postViews(get_the_ID()); ?>
 
-
 // to get tag link
-<?php  echo get_tag_link($trm->term_id); ?>
+<?php echo get_tag_link($trm->term_id); ?>
 
 //function for post type with cat and tag
 <?php 
-function custom_post_type2() {
-$labels = array(
-'name'                => __( 'Video' ),
-'singular_name'       => __( 'Video' ),
-'menu_name'           => __( 'Video'),
-'parent_item_colon'   => __( 'Parent Video'),
-'all_items'           => __( 'All Video' ),
-'view_item'           => __( 'View Video' ),
-'add_new_item'        => __( 'Add New Video' ),
-'add_new'             => __( 'Add New' ),
-'edit_item'           => __( 'Edit Video' ),
-'update_item'         => __( 'Update Video' ),
-'search_items'        => __( 'Search Video' ),
-'not_found'           => __( 'Not Found' ),
-'not_found_in_trash'  => __( 'Not found in Trash' ),
-);
+function custom_post_type() {
+    $labels = array(
+        'name'                => __( 'Video' ),
+        'singular_name'       => __( 'Video' ),
+        'menu_name'           => __( 'Video'),
+        'parent_item_colon'   => __( 'Parent Video'),
+        'all_items'           => __( 'All Video' ),
+        'view_item'           => __( 'View Video' ),
+        'add_new_item'        => __( 'Add New Video' ),
+        'add_new'             => __( 'Add New' ),
+        'edit_item'           => __( 'Edit Video' ),
+        'update_item'         => __( 'Update Video' ),
+        'search_items'        => __( 'Search Video' ),
+        'not_found'           => __( 'Not Found' ),
+        'not_found_in_trash'  => __( 'Not found in Trash' )
+    );
 
 // Set other options for Custom Post Type
 
-$args = array(
-'label'               => __( 'video'),
-'description'         => __( 'videos' ),
-'labels'              => $labels,
-// Features this CPT supports in Post Editor
-'supports'            => array( 'title', 'editor', 'excerpt', 'author', 'thumbnail', 'comments', 'revisions', 'custom-fields','post-formats','page-attributes','trackbacks'),
-// You can associate this CPT with a taxonomy or custom taxonomy. 
-'taxonomies'          => array( 'genres' ),
-/* A hierarchical CPT is like Pages and can have
-* Parent and child items. A non-hierarchical CPT
-* is like Posts.
-*/  
-'hierarchical'        => false,
-'public'              => true,
-'show_ui'             => true,
-'show_in_menu'        => true,
-'show_in_nav_menus'   => true,
-'show_in_admin_bar'   => true,
-'menu_position'       => 30,
-'menu_icon'           => 'dashicons-calendar-alt',
-'can_export'          => true,
-'has_archive'         => true,
-'rewrite' => array('slug' => 'team'),
-'exclude_from_search' => false,
-'publicly_queryable'  => true,
-'capability_type'     => 'post',
-);
-register_post_type( 'video', $args );
+    $args = array(
+        'label'               => __( 'video'),
+        'description'         => __( 'videos' ),
+        'labels'              => $labels,
+        // Features this CPT supports in Post Editor
+        'supports'            => array( 'title', 'editor', 'excerpt', 'author', 'thumbnail', 'comments', 'revisions', 'custom-fields','post-formats','page-attributes','trackbacks'),
+        // You can associate this CPT with a taxonomy or custom taxonomy. 
+        'taxonomies'          => array( 'genres' ),
+        /* A hierarchical CPT is like Pages and can have
+        * Parent and child items. A non-hierarchical CPT
+        * is like Posts.
+        */  
+        'hierarchical'        => false,
+        'public'              => true,
+        'show_ui'             => true,
+        'show_in_menu'        => true,
+        'show_in_nav_menus'   => true,
+        'show_in_admin_bar'   => true,
+        'menu_position'       => 30,
+        'menu_icon'           => 'dashicons-calendar-alt',
+        'can_export'          => true,
+        'has_archive'         => true,
+        'rewrite' => array('slug' => 'team'),
+        'exclude_from_search' => false,
+        'publicly_queryable'  => true,
+        'capability_type'     => 'post'
+    );
+    register_post_type( 'video', $args );
 }
-add_action( 'init', 'custom_post_type2', 0 ); ?>
+add_action( 'init', 'custom_post_type', 0 ); ?>
+
 <?php 
 add_action( 'init', 'create_article_taxonomies', 0 );
 
@@ -813,63 +821,62 @@ function create_article_taxonomies() {
         'update_count_callback' => 'my_update_article_category',
         'query_var'         => true,
         'rewrite'           => array( 'slug' => 'article-category' ),
-        'supports'              => array('thumbnail'),
+        'supports'          => array('thumbnail'),
     );
 
-    register_taxonomy( 'article-category', array( 'articles' ), $args );
-    
-    }
-    add_theme_support( 'post-thumbnails', array( 'post','articles' ) );
-    
-    function my_update_article_category( $terms, $taxonomy ) {
-        global $wpdb;
-        foreach ( (array) $terms as $term ) {
-    
-            $count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_relationships WHERE term_taxonomy_id = %d", $term ) );
-    
-            do_action( 'edit_term_taxonomy', $term, $taxonomy );
-            $wpdb->update( $wpdb->term_taxonomy, compact( 'count' ), array( 'term_taxonomy_id' => $term ) );
-            do_action( 'edited_term_taxonomy', $term, $taxonomy );
-        }
-    }
+    register_taxonomy( 'article-category', array( 'articles' ), $args );    
+}
+add_theme_support( 'post-thumbnails', array( 'post','articles' ) );
 
+function my_update_article_category( $terms, $taxonomy ) {
+    global $wpdb;
+    foreach ( (array) $terms as $term ) {
+
+        $count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_relationships WHERE term_taxonomy_id = %d", $term ) );
+
+        do_action( 'edit_term_taxonomy', $term, $taxonomy );
+        $wpdb->update( $wpdb->term_taxonomy, compact( 'count' ), array( 'term_taxonomy_id' => $term ) );
+        do_action( 'edited_term_taxonomy', $term, $taxonomy );
+    }
+}
 
 //for tags
 add_action( 'init', 'create_tag_taxonomies', 0 );
 
 //create two taxonomies, genres and tags for the post type "tag"
-function create_tag_taxonomies() 
-{
-  // Add new taxonomy, NOT hierarchical (like tags)
-  $labels = array(
-    'name' => _x( 'Video Tags', 'taxonomy general name' ),
-    'singular_name' => _x( 'video Tag', 'taxonomy singular name' ),
-    'search_items' =>  __( 'Search Video Tags' ),
-    'popular_items' => __( 'Popular Video Tags' ),
-    'all_items' => __( 'All Video Tags' ),
-    'parent_item' => null,
-    'parent_item_colon' => null,
-    'edit_item' => __( 'Edit Tag' ), 
-    'update_item' => __( 'Update Tag' ),
-    'add_new_item' => __( 'Add New Tag' ),
-    'new_item_name' => __( 'New Tag Name' ),
-    'separate_items_with_commas' => __( 'Separate tags with commas' ),
-    'add_or_remove_items' => __( 'Add or remove tags' ),
-    'choose_from_most_used' => __( 'Choose from the most used tags' ),
-    'menu_name' => __( 'Video Tags' ),
-  ); 
+function create_tag_taxonomies() {
+    // Add new taxonomy, NOT hierarchical (like tags)
+    $labels = array(
+        'name' => _x( 'Video Tags', 'taxonomy general name' ),
+        'singular_name' => _x( 'video Tag', 'taxonomy singular name' ),
+        'search_items' =>  __( 'Search Video Tags' ),
+        'popular_items' => __( 'Popular Video Tags' ),
+        'all_items' => __( 'All Video Tags' ),
+        'parent_item' => null,
+        'parent_item_colon' => null,
+        'edit_item' => __( 'Edit Tag' ), 
+        'update_item' => __( 'Update Tag' ),
+        'add_new_item' => __( 'Add New Tag' ),
+        'new_item_name' => __( 'New Tag Name' ),
+        'separate_items_with_commas' => __( 'Separate tags with commas' ),
+        'add_or_remove_items' => __( 'Add or remove tags' ),
+        'choose_from_most_used' => __( 'Choose from the most used tags' ),
+        'menu_name' => __( 'Video Tags' )
+    ); 
 
     $args=array(
-    'hierarchical' => false,
-    'labels' => $labels,
-    'show_ui' => true,
-    'show_admin_column' => true,
-    'update_count_callback' => '_update_post_term_count',
-    'query_var' => true,
-    'rewrite' => array( 'slug' => 'video_tag' ),
-  );
-  register_taxonomy( 'video_tag', array( 'video' ), $args );
-} ?>
+        'hierarchical' => false,
+        'labels' => $labels,
+        'show_ui' => true,
+        'show_admin_column' => true,
+        'update_count_callback' => '_update_post_term_count',
+        'query_var' => true,
+        'rewrite' => array( 'slug' => 'video_tag' )
+    );
+    register_taxonomy( 'video_tag', array( 'video' ), $args );
+} 
+?>
+
 //for pagination
 <?php    
     $paged1 = isset( $_GET['paged1'] ) ? (int) $_GET['paged1'] : 1;
@@ -931,7 +938,7 @@ or
                 $query1->the_post();
 ?>
 
-//for apply form
+//for modal form
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -942,16 +949,18 @@ or
             <div class="modal-body">
                 <?php echo do_shortcode('[contact-form-7 id="373" title="Apply Form"]'); ?>
             </div>
-                                <!-- <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary">Save changes</button>
-                                </div> -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div> 
         </div>
     </div>
 </div>
+and
+<a href="javascript:void(0)" data-toggle="modal" data-target="#myModal"></a>
 
 //to link another page
-<?php echo esc_url(home_url('/about-us')); ?>
+<?php echo esc_url(home_url('/about-us/')); ?>
 
 //for scrolling to a section
 <script>
@@ -1002,7 +1011,7 @@ foreach(get_the_tags($post->ID) as $tag) ?>
 <!-- image path --> 
 <?php echo esc_url(get_template_directory_uri()); ?>/assets/
 <?php echo THEME_DIR_URI .'/assets/images/inner_banner.jpg'; ?>
-<?php echo THEME_DIR_URI; ?>/assets/images/inner_banner.jpg'; ?>
+<?php echo THEME_DIR_URI; ?>/assets/images/inner_banner.jpg; 
 <?php bloginfo('template_directory'); ?>/assets/
 
 //comment form
@@ -1158,22 +1167,25 @@ drop down category fetch
     }
 </style>
 
+//404 check in wordpress
+<?php if ( is_404() ) { ?>
+
+//footer logo
 <?php 
 function footerlogo( $wp_customize ) {
-$wp_customize->add_section( 'footer_logo' , array(
-   'title'       => __( 'Footer Logo', 'themeslug' ),
-   'priority'    => 32,
-   'description' => 'Upload a logo to replace the default site name and description in the header',
-) );
+    $wp_customize->add_section( 'footer_logo' , array(
+       'title'       => __( 'Footer Logo', 'themeslug' ),
+       'priority'    => 32,
+       'description' => 'Upload a logo to replace the default site name and description in the header',
+    ) );
 
+    $wp_customize->add_setting( 'footer_logo' );
 
-$wp_customize->add_setting( 'footer_logo' );
-
-$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'footer_logo', array(
-   'label'    => __('Footer logo', 'themeslug' ),
-   'section'  => 'footer_logo',
-   'settings' => 'footer_logo',
-) ) );
+    $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'footer_logo', array(
+       'label'    => __('Footer logo', 'themeslug' ),
+       'section'  => 'footer_logo',
+       'settings' => 'footer_logo',
+    ) ) );
 }
 add_action( 'customize_register', 'footerlogo' ); 
 ?>
@@ -1222,14 +1234,10 @@ if(isset($_POST["submit"])){
         }
     }
     else {
-        echo "Image dimantion does not match...";
+        echo "Image dimension does not match...";
     }
 }
 ?>
-
-<?php if ( has_post_thumbnail($post->ID) ) { ?>
-    <?php $image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'single-post-thumbnail'); ?>
-    <figure><img src="<?php echo $image[0]; ?>" alt="" /></figure>
 
 //map script code
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaoa9WKRopuJsF-R2gMVSN_kPwUVL47aI"></script>
@@ -1334,34 +1342,11 @@ if(isset($_POST["submit"])){
     </div>
 <?php endif;?>
 
-//footer logos
-<?php
-function themeslug_theme_customizer( $wp_customize ) {
-  $wp_customize->add_section( 'themeslug_logo_section' , array(
-   'title'       => __( 'Logo', 'themeslug' ),
-   'priority'    => 30,
-   'description' => 'Upload a logo to replace the default site name and description in the header',
-) );
-$wp_customize->add_setting( 'themeslug_logo' );
-$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'themeslug_logo', array(
-   'label'    => __( 'Logo', 'themeslug' ),
-   'section'  => 'themeslug_logo_section',
-   'settings' => 'themeslug_logo',
-) ) );
-}
-add_action( 'customize_register', 'themeslug_theme_customizer' );
-?>
-<?php if ( get_theme_mod( 'themeslug_logo' ) ) : ?>
-
 <a href="<?php echo esc_url( home_url( '/about-us/' ) ); ?>" title='<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>' rel='home'>
-<img src="<?php echo esc_url( get_theme_mod( 'themeslug_logo' ) ); ?>" 
-alt="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" /></a>
+<img src="<?php echo esc_url( get_theme_mod( 'themeslug_logo' ) ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" /></a>
 
-<?php else : ?>
-<?php endif; ?>
-
+//meta query
 <?php 
-
 function all_reaturedproducts(){
     $meta_query   = WC()->query->get_meta_query();
     $meta_query[] = array(
@@ -1460,32 +1445,28 @@ function get_product_dropdown(){
 <?php wp_is_mobile(); ?>
 
 <?php
-function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function = '',
+    function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function = '',
 
-
-function register_fields()
-{
-    register_setting('general', 'my_first_field', 'esc_attr');
-    add_settings_field('my_first_field', '<label for="my_first_field">'.__('Phone Number' , 'my_first_field' ).'</label>' , 'print_first_field', 'general');
-    
-    register_setting('general', 'my_second_field', 'esc_attr');
-    add_settings_field('my_second_field', '<label for="my_second_field">'.__('Site Email' , 'my_second_field' ).'</label>' , 'print_second_field', 'general');
-}
-function print_first_field()
-{
-    $value = get_option( 'my_first_field', '' );
-    echo '<input type="text" id="my_first_field" name="my_first_field" value="' . $value . '" />';
-}
-function print_second_field()
-{
-    $value = get_option( 'my_second_field', '' );
-    echo '<input type="text" id="my_second_field" name="my_second_field" value="' . $value . '" />';
-}
-add_filter('admin_init', 'register_fields');
+    function register_fields() {
+        register_setting('general', 'my_first_field', 'esc_attr');
+        add_settings_field('my_first_field', '<label for="my_first_field">'.__('Phone Number' , 'my_first_field' ).'</label>' , 'print_first_field', 'general');
+        
+        register_setting('general', 'my_second_field', 'esc_attr');
+        add_settings_field('my_second_field', '<label for="my_second_field">'.__('Site Email' , 'my_second_field' ).'</label>' , 'print_second_field', 'general');
+    }
+    function print_first_field() {
+        $value = get_option( 'my_first_field', '' );
+        echo '<input type="text" id="my_first_field" name="my_first_field" value="' . $value . '" />';
+    }
+    function print_second_field() {
+        $value = get_option( 'my_second_field', '' );
+        echo '<input type="text" id="my_second_field" name="my_second_field" value="' . $value . '" />';
+    }
+    add_filter('admin_init', 'register_fields');
 ?>
 <?php 
-add_filter( 'authenticate', 'wpse32218_check_for_key', 10, 3 );
-function wpse32218_check_for_key( $user, $username, $password ){
+add_filter( 'authenticate', 'check_for_key', 10, 3 );
+function check_for_key( $user, $username, $password ){
     $user_obj = get_user_by('login', $username );
 
     if ($username!=''){
@@ -1526,7 +1507,6 @@ $("#msg-form").on("keypress", function(e) {
 
 <?php 
 function wpbsearchform( $form ) {
-
     $form = 
     '<div class="input_search">
         <form role="search" method="get" id="searchform" action="' . home_url( '/' ) . '" >
@@ -1539,59 +1519,56 @@ function wpbsearchform( $form ) {
 }
 add_shortcode('wpbsearch', 'wpbsearchform');
 ?> 
+
 <?php $terms = get_the_terms( $product_id, 'product_cat' ); 
     $termname = $terms[0]->slug; ?>
+
 //for map sent in contact form
 on_sent_ok:"location='https://goo.gl/maps/FPUTK3rQLcC2';"
-
 
 <?php 
 function test_init(){
     echo "<h1>This Is Custom Plugin!</h1>";
     echo "<h2>User</h2>";
-/* global $current_user;
+/*  global $current_user;
     get_currentuserinfo();
-
-echo 'Username: ' . $current_user->user_login . "\n";echo "<br>";
-echo 'User email: ' . $current_user->user_email . "\n";echo "<br>";
-/*echo 'User first name: ' . $current_user->user_firstname . "\n";echo "<br>";
-echo 'User last name: ' . $current_user->user_lastname . "\n";echo "<br>";*/
-/*echo 'User display name: ' . $current_user->display_name . "\n";echo "<br>";
-echo 'User ID: ' . $current_user->ID . "\n";*/
-$blogusers = get_users( array( 'fields' => array( 'display_name' ) ) );
-// Array of stdClass objects.
-foreach ( $blogusers as $user ) {
-echo '<span>' . esc_html( $user->display_name ) . '</span>'; echo '<br>';
-} 
-
+    echo 'Username: ' . $current_user->user_login . "\n";echo "<br>";
+    echo 'User email: ' . $current_user->user_email . "\n";echo "<br>";
+    /*echo 'User first name: ' . $current_user->user_firstname . "\n";echo "<br>";
+    echo 'User last name: ' . $current_user->user_lastname . "\n";echo "<br>";*/
+    /*echo 'User display name: ' . $current_user->display_name . "\n";echo "<br>";
+    echo 'User ID: ' . $current_user->ID . "\n";*/
+    $blogusers = get_users( array( 'fields' => array( 'display_name' ) ) );
+    // Array of stdClass objects.
+    foreach ( $blogusers as $user ) {
+        echo '<span>' . esc_html( $user->display_name ) . '</span>'; echo '<br>';
+    } 
+}
 ?>
 
 //counter loop for printing first and last
-<?php $count=0; while('the_field'): $count++; $orderng='get_field_value from radio button';?>
-<?php if(($ordrng ==0)&&($count==1)): ?>
-  <h3><?php the_field('new_customize_section_for_privacy_policy'); ?></h3>
-<?php endif; ?>
-<div class="term_row">
-   <h2><?php echo $section_title; ?></h2>
-   <?php echo $section_content; ?>
-</div>
-<?php if($count == $ordrng ): ?>
-    
-  <h3><?php the_field('new_customize_section_for_privacy_policy'); ?></h3>
-<?php endif; ?>
+<?php 
+    $count=0; 
+    while('the_field'): $count++; 
+    $orderng='get_field_value from radio button';
+    if( ($ordrng ==0) && ($count==1) ): ?>
+        <h3><?php the_field('new_customize_section_for_privacy_policy'); ?></h3>
+    <?php endif; ?>
+    <?php if($count == $ordrng ): ?> 
+        <h3><?php the_field('new_customize_section_for_privacy_policy'); ?></h3>
+    <?php endif; 
+?>
 
 global $LNG_DE;
-    $LNG_DE = $dictionary;
-
-
+$LNG_DE = $dictionary;
 
 //login,logout 
 <div class="log_panel">
     <?php if ( is_user_logged_in() ) { ?>
-     <a href="<?php echo get_permalink(woocommerce_get_page_id('myaccount')); ?>/customer-logout/"><?php _e('Logout','twentyseventeen'); ?></a>
+        <a href="<?php echo get_permalink(woocommerce_get_page_id('myaccount')); ?>/customer-logout/"><?php _e('Logout','twentyseventeen'); ?></a>
     <?php }else{ ?>
-     <a href="<?php echo get_permalink(woocommerce_get_page_id('myaccount')); ?>"><?php _e('Login','twentyseventeen'); ?></a>
-     <a href="<?php echo home_url('/register/'); ?>"><?php _e('Signup','twentyseventeen'); ?></a> 
+        <a href="<?php echo get_permalink(woocommerce_get_page_id('myaccount')); ?>"><?php _e('Login','twentyseventeen'); ?></a>
+        <a href="<?php echo home_url('/register/'); ?>"><?php _e('Signup','twentyseventeen'); ?></a> 
     <?php } ?>
 </div>
 
@@ -1646,15 +1623,18 @@ function revcon_change_post_object() {
  
 add_action( 'admin_menu', 'revcon_change_post_label' );
 add_action( 'init', 'revcon_change_post_object' );
-
 ?>
+
 //for load more post
 <script>
     +function($){
         var paged = 2;
         var total_page = <?php echo $total_pg;?>;
         $("#loadmore").click(function(){
-            var data= { action: 'video_load_fun', 'paged' :parseInt(paged)+1 };
+            var data= { 
+                action: 'video_load_fun',
+                'paged' :parseInt(paged)+1 
+            };
             jQuery.post(ajaxurl, data,function(response) {
                 paged++;
                 if(total_page<paged){
@@ -1676,23 +1656,16 @@ add_action( 'init', 'revcon_change_post_object' );
 
 // Dropdown toggle
 <script>
-$('.dropdown-toggle').click(function(){
-  $(this).next('.dropdown').toggle();
-});
- 
-$(document).click(function(e){
-  var target = e.target;
-  if (!$(target).is('.dropdown-toggle') && !$(target).parents().is('.dropdown-toggle')) 
-  {
-    $('.dropdown').hide();
-  }
-});
+    $('.dropdown-toggle').click(function(){
+        $(this).next('.dropdown').toggle();
+    });
+    $(document).click(function(e){
+        var target = e.target;
+        if (!$(target).is('.dropdown-toggle') && !$(target).parents().is('.dropdown-toggle')) {
+            $('.dropdown').hide();
+        }
+    });
 </script>
-
-
-
-Client ID=81107s8wjwjg9x
-Client Secret=Ch5EJTXL4h1cUoPy
 
 //stop related youtube videos
 https://www.youtube.com/embed/SyiwWRMoXXA?&rel=0
@@ -1701,7 +1674,7 @@ https://www.youtube.com/embed/SyiwWRMoXXA?&rel=0
 <?php 
 add_action( 'wp_enqueue_scripts', 'exactus_stylesheet_scripts' );
 function exactus_stylesheet_scripts() {
-    wp_enqueue_style( 'bootstrap', get_template_directory_uri().'/assets/css/bootstrap.css', array(), '1.1', 'all' );
+    wp_enqueue_style( 'bootstrap-min-css', get_template_directory_uri().'/assets/css/bootstrap.min.css', array(), '1.1', 'all' );
     wp_enqueue_style( 'fonts-css', get_template_directory_uri().'/assets/css/fonts.css', array(), '1.1', 'all' );
     wp_enqueue_style( 'font-awesome-min-css', get_template_directory_uri().'/assets/css/font-awesome.min.css', array(), '1.1', 'all' );
     wp_enqueue_style( 'reset-css', get_template_directory_uri().'/assets/css/reset.css', array(), '1.1', 'all' );
@@ -1785,7 +1758,7 @@ switch ($count) {
 <?php $tags = get_tags( array('orderby' => 'count', 'order' => 'DESC', 'number'=>28) ); foreach ( (array) $tags as $tag ) { echo '<li><a href="' . get_tag_link ($tag->term_id) . '" rel="tag">' . $tag->name . '</a></li>'; } ?>
 
 <a href="<?php echo esc_url(home_url('/login/')); ?>" class="<?php echo esc_url(home_url('/login/'))==get_the_permalink(get_the_ID())?'active':''; ?>"><?php echo get_theme_mod('login_title'); ?></a>
-        <a href="<?php echo esc_url(home_url('/sign-up/')); ?>" class="<?php echo esc_url(home_url('/sign-up/'))==get_the_permalink(get_the_ID())?'active':''; ?> sign_up_hd"><?php echo get_theme_mod('signup_title'); ?></a>
+<a href="<?php echo esc_url(home_url('/sign-up/')); ?>" class="<?php echo esc_url(home_url('/sign-up/'))==get_the_permalink(get_the_ID())?'active':''; ?> sign_up_hd"><?php echo get_theme_mod('signup_title'); ?></a>
 
 //for showing value of select dropdown
 <script>
@@ -1794,8 +1767,7 @@ switch ($count) {
         $('#price-slct').change(function(){
             var end = $(this).find("option:selected").val();
             //alert(end);
-            $('#shw-price').html(end);
-            
+            $('#shw-price').html(end);   
         });
     });
 }(jQuery);
@@ -1838,20 +1810,6 @@ $(document).ready(function(){
     while ( $query->have_posts() ) : $query->the_post(); 
 ?>
 
-//for creating gallery in acf
-<?php 
-    $page_id=get_the_ID();
-    $images=get_field('home_page_photo_gallary',4);                             
-    foreach ($images as $img) :
-?>
-
-    <div class="col-xs-6 col-sm-4">
-        <div class="gallery-inner-img">
-            <a class="fancybox" href="<?php echo $img['url']; ?>" data-fancybox-group="gallery" ><span><i class="fa fa-search"></i></span><img src="<?php echo $img['url']; ?>" alt="" /></a>
-        </div>
-    </div>
-<?php endforeach; ?>
-
 //get attribute value and store in a hiden input
 <script>
 (function($){
@@ -1864,42 +1822,22 @@ $(document).ready(function(){
 
 <script>
 (function($){  
-   $(".submit-details" ).click(function() {
-    var date = $(this).attr('data-date');
-    var time = $(this).attr('data-time');
-    var name = $(this).attr('data-name');
-    var lastname = $(this).attr('data-lastname');
-    var church = $(this).attr('data-church');
-    $('#date_hidden').val(date);
-    $('#time_hidden').val(time);
-    $('#name_hidden').val(name);
-    $('#last_name_hidden').val(lastname);
-    $('#church_hidden').val(church);
-   })
-   $('.close').click(function(){
+    $(".submit-details" ).click(function() {
+        var date = $(this).attr('data-date');
+        var time = $(this).attr('data-time');
+        var name = $(this).attr('data-name');
+        var lastname = $(this).attr('data-lastname');
+        var church = $(this).attr('data-church');
+        $('#date_hidden').val(date);
+        $('#time_hidden').val(time);
+        $('#name_hidden').val(name);
+        $('#last_name_hidden').val(lastname);
+        $('#church_hidden').val(church);
+    })
+    $('.close').click(function(){
         window.location.href="";
     })
 })(jQuery);
-</script>
-
-//ajax code for submit data
-<script>
-$.ajax({
-    type: "POST",
-    url: "ajax-submit2.php",
-    data: dataString,
-    cache: false,
-    success: function(result){
-        $("#msge").html(result);
-        $("#name1").val('');
-        $("#email1").val('');
-        $("#phone1").val('');
-        $("#message1").val('');
-    }, 
-    error: function(result){
-       alert(result);
-    },
-});
 </script>
 
 //submit data and show message in ajax
@@ -1915,13 +1853,16 @@ $.ajax({
         setTimeout(function() {
             $('#msg').fadeOut('slow');
         }, xSeconds);
+        $("#name1").val('');
+        $("#email1").val('');
+        $("#phone1").val('');
+        $("#message1").val('');
     }, 
     error: function(result){
         alert(result);
     },
 });
 </script>
-
 
 //ajax load more post
 in function page
@@ -1930,26 +1871,23 @@ add_action('wp_head','ajaxurl');
 function ajaxurl() {
 ?>
 <script type="text/javascript">
-var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
-
+    var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
 </script>
 <?php }
 add_action( 'wp_ajax_video_load_fun', 'video_load_fun');
 add_action( 'wp_ajax_nopriv_video_load_fun', 'video_load_fun');
 function video_load_fun(){
-        $paged = $_REQUEST['paged'];
-        $wpb_all_query = new WP_Query(array(
-            'order'=>'DESC','post_type'=>'post', 'post_status'=>'publish', 'paged'=>$paged, 'posts_per_page'=>3)); 
-        $total_pg = $wpb_all_query->max_num_pages;
-        if ( $wpb_all_query->have_posts() ) : ?>
-        <?php while ( $wpb_all_query->have_posts() ) : $wpb_all_query->the_post(); ?>
+    $paged = $_REQUEST['paged'];
+    $wpb_all_query = new WP_Query(array(
+        'order'=>'DESC','post_type'=>'post', 'post_status'=>'publish', 'paged'=>$paged, 'posts_per_page'=>3)); 
+    $total_pg = $wpb_all_query->max_num_pages;
+    if ( $wpb_all_query->have_posts() ) : ?>
+    <?php while ( $wpb_all_query->have_posts() ) : $wpb_all_query->the_post(); ?>
 
-            //the structure
+        //the structure
 
-        <?php  
-        endwhile;  endif; 
-        //die();
-    }
+    <?php endwhile;  endif; die();
+}
 ?>
 
 in normal page
@@ -1972,7 +1910,7 @@ in normal page
 
 js code
 <script>
-  +function($){
++function($){
     var paged = 1;
     var total_page = <?php echo $total_pg;?>;
     var btn = $('.connect_btn').html();
@@ -1988,7 +1926,7 @@ js code
             $('.connect_btn').html(btn);
         });
     });
-  }(jQuery);  
+}(jQuery);  
 </script>
 
 <script>
@@ -2007,29 +1945,21 @@ $(document).on("change",'input[name="crse"]',function(){
 });
 </script>
 
-<script>
-$(function (){
-    $("#name").on("keypress", function(e){
-            if (e.which === 32 && !this.value.length) 
-            e.preventDefault();
-    });
-});
-</script>
-
-
-
-
-//plugin check
+//check whether variable has value
 <?php 
 if(isset($content) && $content){
 } ?>
 
 my ip=http://10.0.0.229
 
-
-
 <?php 
 function themeName_customize_register( $wp_customize ) {
+
+    // Add Section
+    $wp_customize->add_section('slideshow', array(
+        'title'             => __('Slider Images', 'name-theme'), 
+        'priority'          => 70,
+    ));  
 
     // Add Settings
     $wp_customize->add_setting('customizer_setting_one', array(
@@ -2039,13 +1969,7 @@ function themeName_customize_register( $wp_customize ) {
     $wp_customize->add_setting('customizer_setting_two', array(
         'transport'         => 'refresh',
         'height'         => 325,
-    ));
-
-    // Add Section
-    $wp_customize->add_section('slideshow', array(
-        'title'             => __('Slider Images', 'name-theme'), 
-        'priority'          => 70,
-    ));    
+    ));  
 
     // Add Controls
     $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'customizer_setting_two_control', array(
@@ -2060,6 +1984,7 @@ function themeName_customize_register( $wp_customize ) {
     )));    
 }
 add_action('customize_register', 'themeName_customize_register');
+
 ?>
 //create normal post type
 <?php 
@@ -2071,15 +1996,16 @@ add_action( 'init', 'promoted_offers' );
               'name' => __( 'Promoted Offers' ),
               'singular_name' => __( 'Promoted Offers' )
             ),
-          'public' => true,
-          'has_archive' => true,
-          'rewrite' => array('slug' => 'promoted_offers'),
-          'supports' => array( 'title', 'editor', 'thumbnail', 'revisions','featured', 'comments','excerpt' ),
+            'public' => true,
+            'has_archive' => true,
+            'rewrite' => array('slug' => 'promoted_offers'),
+            'supports' => array( 'title', 'editor', 'thumbnail', 'revisions','featured', 'comments','excerpt' ),
         )
     );
 }
 ?>
 
+//css start
 <style>
 * {
     margin:0;
@@ -2092,11 +2018,9 @@ img{
     display: block;
 }
 </style>
-//echo php variable in alert
 
-<?php 
-echo '<script>alert("' . $surname . '");</script>';
-?>
+//echo php variable in alert
+<?php echo '<script>alert("' . $surname . '");</script>'; ?>
 
 //set featured image from front end wordpress
 <?php 
@@ -2115,32 +2039,30 @@ echo '<script>alert("' . $surname . '");</script>';
         }     
     }
     if ($attach_id > 0){
-       //and if you want to set that image as Post  then use:
-       update_post_meta($lastInsertId,'_thumbnail_id',$attach_id);
+        //and if you want to set that image as Post  then use:
+        update_post_meta($lastInsertId,'_thumbnail_id',$attach_id);
     }
 ?>
-echo '<script>alert(\''.$attach_id.'\');</script>';
+<?php echo '<script>alert(\''.$attach_id.'\');</script>'; ?>
 
 
 //for datepicker
-      <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"
-         rel = "stylesheet">
-      <script src = "https://code.jquery.com/jquery-1.10.2.js"></script>
-      <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
-      
-      <!-- Javascript -->
-      <script>
-         $(function() {
-            $( "#datepicker-12" ).datepicker();
-           
-         });
-      </script>
-   </head>
-   
-   <body>
-      <!-- HTML --> 
-      <p>Enter Date: <input type = "text" id = "datepicker-12"></p>
-   </body>
+<html>
+    <head>
+        <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel = "stylesheet">
+        <script src = "https://code.jquery.com/jquery-1.10.2.js"></script>
+        <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>  
+        <!-- Javascript -->
+        <script>
+            $(function() {
+                $( "#datepicker-12" ).datepicker();   
+            });
+        </script>
+    </head>
+    <body>
+        <!-- HTML --> 
+        <p>Enter Date: <input type = "text" id = "datepicker-12"></p>
+    </body>
 </html>
 
 //for video
@@ -2152,17 +2074,17 @@ php code for scrolling to a section
 <?php echo esc_url(home_url('/help-start/')); ?>#idname; 
 
 <div class="AW-Form-2053719154"></div>
-<script type="text/javascript">(function(d, s, id) {
-var js, fjs = d.getElementsByTagName(s)[0];
-if (d.getElementById(id)) return;
-js = d.createElement(s); js.id = id;
-js.src = "//forms.aweber.com/form/54/2053719154.js";;
-fjs.parentNode.insertBefore(js, fjs);
+<script type="text/javascript">
+(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//forms.aweber.com/form/54/2053719154.js";;
+    fjs.parentNode.insertBefore(js, fjs);
 }(document, "script", "aweber-wjs-je05gd5t5"));
 </script>
 
-
-//for image show
+//for image show on upload
 <input id="avatarDp" type="file" name="photo" onChange="showPreview(this);">
 <div id="imgTarget"></div>
 
@@ -2277,14 +2199,14 @@ the structure
   }(jQuery);  
 </script>
  
- //add class using jquery
+//add class using jquery
 <script>
     +function($){
         $("li.nav-item a").addClass("nav-link");
     }(jQuery);
 </script>
 
-//add attribute in  jquery
+//add attribute in jquery
 <script>
     $(document).ready(function(){
         $("ul#menu-top-menu li:last-child a").attr("data-toggle", "modal");
@@ -2315,6 +2237,7 @@ the structure
     </div>
 </div>
 
+//mail template
 <table rules="all" style="border-color:rgb(102,102,102) ; border: 1px solid; width: 100%" cellpadding="10">
     <tbody>
         <tr style="color:#ddb263;font-size:14px;background-color:rgb(57,62,64);border:1px solid #000; font-weight:bold">
@@ -2370,41 +2293,12 @@ jQuery(document).ready(function($) {
     ) ); 
     foreach ($terms as $trm) {
     }
-?>
+?>     
 
-
-<ul>                                    
-    <?php  global $wpdb;                                    
-        $term_ids = $wpdb->get_col("SELECT term_id FROM $wpdb->term_taxonomy INNER JOIN $wpdb->term_relationships ON $wpdb->term_taxonomy.term_taxonomy_id=$wpdb->term_relationship.term_taxonomy_id INNER JOIN $wpdb->posts ON $wpdb->posts.ID = $wpdb->term_relationships.object_id WHERE DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= $wpdb->posts.post_date"); 
-            if(count($term_ids) > 0)
-            {                                                       
-                $tags = get_tags(
-                            array(  'orderby' => 'count',
-                                    'order'   => 'DESC',                                                    
-                                    'number'  => 9,                                                         
-                                    'include' => $term_ids,                                                 
-                            ));                             
-                $count = 0;                                  
-                foreach($tags as $termval): $count++;
-                    if($count <= 8): ?>                                    
-                        <li>
-                            <a href="<?php echo get_tag_link($termval->term_id); ?>">    
-                            <?php echo $termval->name; ?></a>                                    
-                        </li>                                    
-                    <?php else: ?>
-                        <li>       
-                            <a href="<?php echo get_permalink(2256); ?>">                                               <?php echo 'View All'; ?>                                        
-                            </a>                                    
-                        </li>                                    
-                    <?php endif; ?>                                    
-                <?php endforeach; 
-            } 
-            else
-            {   
-                echo 'No tags found';                                    
-            }
-    ?>                                
-</ul>
+//inner join example                              
+<?php  global $wpdb;                                    
+    $term_ids = $wpdb->get_col("SELECT term_id FROM $wpdb->term_taxonomy INNER JOIN $wpdb->term_relationships ON $wpdb->term_taxonomy.term_taxonomy_id=$wpdb->term_relationship.term_taxonomy_id INNER JOIN $wpdb->posts ON $wpdb->posts.ID = $wpdb->term_relationships.object_id WHERE DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= $wpdb->posts.post_date"); 
+?>                                
 
 //share in facebook,twitter,linkedln,google plus
 <div class="social-blk">
@@ -2428,7 +2322,6 @@ function add_roless() {
 add_action( 'init', 'add_roless' );
 ?>
 
-
 <?php 
   global $current_user; 
   get_currentuserinfo(); 
@@ -2438,7 +2331,7 @@ add_action( 'init', 'add_roless' );
   echo "</pre>";
 ?>
 
- <a href="<?php echo wp_logout_url(); ?>">Logout</a>
+<a href="<?php echo wp_logout_url(); ?>">Logout</a>
 
 <tr style="background: #fff;">
     <td>
@@ -2531,6 +2424,7 @@ var $mcj = jQuery.noConflict(true);</script>
     </div>
 </form>
 
+//mail template
 <div style="width: 100%; margin: 0 auto; vertical-align: middle; background-color:#A30234;padding-top: 12px;padding-bottom: 12px; ">              
     <table cellpadding="0" cellspacing="0" style="width:550px; verticle-align:middle; background-color:#FFFFFF;margin: 0 auto;">
         <tr>
@@ -2568,8 +2462,6 @@ var $mcj = jQuery.noConflict(true);</script>
         </tr>                       
     </table>                    
 </div>
-
-
 
 
 '<div style="width: 100%; margin: 0 auto; vertical-align: middle; background-color:#A30234;padding-top: 12px;padding-bottom: 12px; ">
@@ -2736,7 +2628,7 @@ add_filter('login_redirect', 'my_login_redirect', 10, 3 );
 <?php
 function no_admin_accss(){
     $redirect = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : home_url( '/' );
-    if (current_user_can('subscriber'))
+    if (current_user_can('subscriber') && $_SERVER['PHP_SELF'] != '/wp-admin/admin-ajax.php' )
         exit( wp_redirect( $redirect ) );
 }
 add_action( 'admin_init', 'no_admin_accss', 100 );
@@ -2770,7 +2662,8 @@ function custom_twitter_struc($consumerKey,$consumerSecret,$accessToken,$accessT
         $response = curl_exec($curl_request);
         curl_close($curl_request);
         file_put_contents($filename, $response);
-    } else {
+    } 
+    else {
         $response = file_get_contents($filename);
     }
     //header('Content-Type: application/json');
@@ -3007,6 +2900,14 @@ add_action('init', 'register_my_session');
     $wpdb->query( $wpdb->prepare( " UPDATE $wpdb->posts SET post_parent = %d WHERE ID = %d AND post_status = %s",7, 15, 'publish' ) );
 ?>
 
+//delete query wordpress
+<?php 
+    global $wpdb;
+    $delet=$_REQUEST['delet'];
+    $usr= wp_get_current_user();
+    $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}posts WHERE ID = $delet AND post_author = $usr->ID")); 
+?>
+
 ///How to display viewers of a youtube video/////
 
 <?php
@@ -3099,6 +3000,12 @@ Require valid-user
     add_filter( "woocommerce_catalog_orderby", "my_woocommerce_catalog_orderby", 20 ) 
 ?>
 
+//array print
+<?php
+echo '<pre>';
+    print_r(expression);
+echo '</pre>';
+?>
 //for cookies
 <?php 
 if ( !isset($_COOKIE['sitename_newvisitor'])) {
@@ -3529,7 +3436,8 @@ add_action( 'login_enqueue_scripts', 'my_login_logo' );
     $artcle_args = array(
      'hide_empty'=> true,
      'orderby' => 'id',
-     'taxonomy' => 'maps_cat'
+     'taxonomy' => 'maps_cat',
+     //'parent' => 0
     );
  $maps_cat = get_categories($artcle_args); //print_r($maps_cat);
  foreach($maps_cat as $map_cat) { ?>
@@ -3625,6 +3533,33 @@ $message = "<h3>".$Message."</h3><br/>"."<b>Name:</b> ".$fname." ".$lname."<br/>
    'Reply-To: '. $admin_email . "\r\n" .
    'X-Mailer: PHP/' . phpversion();
     mail($to,$subject,$message,$headers);
+?>
+
+//login code
+<?php 
+add_action( 'wp_ajax_sign_in_prcs', 'sign_in_prcs' );
+add_action( 'wp_ajax_nopriv_sign_in_prcs', 'sign_in_prcs' );
+
+function sign_in_prcs(){
+    $eml=$_POST['email'];
+    $pass=$_POST['pass'];
+    $creds = array();
+    $creds['user_login'] = $eml;
+    $creds['user_password'] = $pass;
+    $creds['remember'] = true;
+
+    $user = wp_signon( $creds, false );
+    $user_id=$user->ID;
+
+    if ($user_id!=0){
+        $a=home_url('/');
+        echo $a;
+    }    
+    else {
+        echo 'FAIL';
+    }
+    exit();
+}
 ?>
 
 //append code jquery
@@ -3850,7 +3785,7 @@ function signup(){
     $headers .= "From: NFBPA <abhijoy.samaddar@esolzmail.com>\r\n".
                 "Reply-To: abhijoy.samaddar@esolzmail.com\r\n" .
                 'X-Mailer: PHP/' . phpversion();
-    mail($recipient, $subject, $body, $headers)
+    mail($recipient, $subject, $body, $headers);
     do_action('user_register', $user_id);     
 }
 ?>
@@ -4438,6 +4373,45 @@ add_action( 'init', 'set_new_cookie');
 </body>
 </html>
 
+//mail template
+<div style="width: 100%; margin: 0 auto; vertical-align: middle; background-color:#A30234;padding-top: 12px;padding-bottom: 12px; ">              
+    <table cellpadding="0" cellspacing="0" style="width:550px; verticle-align:middle; background-color:#FFFFFF;margin: 0 auto;">
+        <tr>
+           <td colspan="6" style="text-align:center;"><img src="http://ticenter.net/wp-content/uploads/2016/03/logo.png"></td>
+        </tr>
+        <tr>
+           <td colspan="6" style="text-align:center;"><strong>Your Application is Successfull</strong></td>
+        </tr>
+        <tr>
+          <td width="30%" style=" padding:5px 20px 5px 20px;">
+             <strong> Program Applied</strong>
+          </td>
+           <td style=" padding:5px 20px 5px 20px;">
+            <p>'.$_POST['title_crse'].'</p>
+          </td>
+        </tr>
+        <tr>
+           <td colspan="6" style="text-align:left; padding:5px 20px 5px 20px;"><strong>Here are your login details:-</strong></td>
+        </tr>
+        <tr>
+          <td width="30%" style=" padding:5px 20px 5px 20px;">
+             <strong>Email Address</strong>
+          </td>
+           <td style=" padding:5px 20px 5px 20px;">
+            <p>'.$_POST['stripe_email'].'</p>
+          </td>
+        </tr>
+         <tr>
+          <td width="30%" style=" padding:5px 20px 5px 20px;">
+           <strong> Password</strong>
+          </td>
+           <td style=" padding:5px 20px 5px 20px;">
+            <p>'.$user_pass.'</p>
+          </td>
+        </tr>                       
+    </table>                    
+</div>
+
 //comment number
 <?php echo get_comments_number(); ?>
 
@@ -4479,4 +4453,315 @@ $("#slct").selectmenu({
 });
 </script>
 
+//allow all file upload wordpress
+<?php 
+define('ALLOW_UNFILTERED_UPLOADS', true);
+?>
+
 on_submit: "$('.chatFig h3').html('Thank You ! Your Message has sent .');"
+
+/*Hover Dropdown Menu Css*/ 
+
+<style>
+.dropdown:hover > .dropdown-menu { 
+    display: block; 
+} 
+.dropdown-submenu {
+    position: relative;
+} 
+.dropdown-submenu>.dropdown-menu { 
+    top: 0; 
+    left: 100%;
+    margin-top: -6px; 
+    margin-left: -1px; 
+    -webkit-border-radius: 0 6px 6px 6px; 
+    -moz-border-radius: 0 6px 6px; 
+    border-radius: 0 6px 6px 6px; 
+} 
+.dropdown-submenu:hover > .dropdown-menu { 
+    display: block; 
+} 
+.dropdown-submenu>a:after { 
+    display: block; 
+    content: " "; 
+    float: right; 
+    width: 0; 
+    height: 0; 
+    border-color: transparent; 
+    border-style: solid; 
+    border-width: 5px 0 5px 5px; 
+    border-left-color: #ccc; 
+    margin-top: 5px; 
+    margin-right: -10px; 
+} 
+.dropdown-submenu:hover>a:after { 
+    border-left-color: #fff; 
+} 
+.dropdown-submenu.pull-left { 
+    float: none; 
+} 
+.dropdown-submenu.pull-left>.dropdown-menu { 
+    left: -100%; 
+    margin-left: 10px; 
+    -webkit-border-radius: 6px 0 6px 6px; 
+    -moz-border-radius: 6px 0 6px 6px; 
+    border-radius: 6px 0 6px 6px; 
+}
+</style>
+
+//get years archieve by query
+<?php 
+    $year = $wpdb->get_results("SELECT DISTINCT YEAR( post_date ) AS year, COUNT( id ) as post_count FROM $wpdb->posts WHERE post_status = 'publish' and post_date <= now( ) and post_type = 'post' ORDER BY year DESC");
+?>
+or
+<?php echo wp_get_archives('type=yearly'); ?>
+
+//stop video in modal for <!-- <video> --> 
+<script type="text/javascript">
+$(document).ready(function(){
+    $(".banner_modal").on('hidden.bs.modal', function (e) {
+        $('video').each(function() { 
+            /*this.player.pause();*/
+            this.pause();
+            this.currentTime = 0; 
+        });
+    });
+});
+</script>
+
+<script>
+    jQuery('#myModal2').on('hidden.bs.modal', function (e) {
+        jQuery('#myModal2 video').attr("src", jQuery("#myModal2 video").removeAttr("src"));
+    });
+</script>
+
+JTsfESo&0ZsUmrGR
+
+wordpressjohnson@gmail.com
+
+<script>
+$(document).ready(function() {
+   // When the Upload button is clicked...
+   $(document).on('change', '.btn-upload', function(e){
+   
+   $('.loader').show();
+   e.preventDefault;
+
+       var fd = new FormData();
+       var files_data = $('.files-data'); // The <input type="file" /> field
+       
+       // Loop through each data and create an array file[] containing our files data.
+       $.each($(files_data), function(i, obj) {
+           $.each(obj.files,function(j,file){
+               fd.append('files[' + j + ']', file);
+           })
+       });
+       
+       // our AJAX identifier
+       fd.append('action', 'cvf_upload_files');  
+       
+       // uncomment this code if you do not want to associate your uploads to the current page.
+       fd.append('post_id', <?php echo $post->ID; ?>); 
+
+       $.ajax({
+           type: 'POST',
+           url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+           data: fd,
+           contentType: false,
+           processData: false,
+           success: function(response){
+               location.reload(true);
+               $('.loader').hide();
+           }
+       });
+   });
+});
+
+
+////////////////////Image upload/////////////////
+add_action('wp_ajax_cvf_upload_files', 'cvf_upload_files');
+add_action('wp_ajax_nopriv_cvf_upload_files', 'cvf_upload_files'); // Allow front-end submission 
+
+function cvf_upload_files(){
+    
+    $parent_post_id = isset( $_POST['post_id'] ) ? $_POST['post_id'] : 0;  // The parent ID of our attachments
+    $valid_formats = array("jpg", "png", "gif", "bmp", "jpeg"); // Supported file types
+    $max_file_size = 2048 * 1500; // in kb
+    $max_image_upload = 10; // Define how many images can be uploaded to the current post
+    $wp_upload_dir = wp_upload_dir();
+    $path = $wp_upload_dir['path'] . '/';
+    $count = 0;
+
+    $attachments = get_posts( array(
+        'post_type'         => 'attachment',
+        'posts_per_page'    => -1,
+        'post_parent'       => $parent_post_id,
+        'exclude'           => get_post_thumbnail_id() // Exclude post thumbnail to the attachment count
+    ) );
+
+    // Image upload handler
+    if( $_SERVER['REQUEST_METHOD'] == "POST" ){
+        
+        // Check if user is trying to upload more than the allowed number of images for the current post
+        //if( ( count( $attachments ) + count( $_FILES['files']['name'] ) ) > $max_image_upload ) {
+            //$upload_message[] = "Sorry you can only upload " . $max_image_upload . " images for each Ad";
+        //} else {
+            
+            foreach ( $_FILES['files']['name'] as $f => $name ) {
+                $extension = pathinfo( $name, PATHINFO_EXTENSION );
+                // Generate a randon code for each file name
+                $new_filename = cvf_td_generate_random_code( 20 )  . '.' . $extension;
+                
+                if ( $_FILES['files']['error'][$f] == 4 ) {
+                    continue; 
+                }
+                
+                if ( $_FILES['files']['error'][$f] == 0 ) {
+                    // Check if image size is larger than the allowed file size
+                    if ( $_FILES['files']['size'][$f] > $max_file_size ) {
+                        $upload_message[] = "$name is too large!.";
+                        continue;
+                    
+                    // Check if the file being uploaded is in the allowed file types
+                    } elseif( ! in_array( strtolower( $extension ), $valid_formats ) ){
+                        $upload_message[] = "$name is not a valid format";
+                        continue; 
+                    
+                    } else{ 
+                        // If no errors, upload the file...
+                        if( move_uploaded_file( $_FILES["files"]["tmp_name"][$f], $path.$new_filename ) ) {
+                            
+                            $count++; 
+
+                            $filename = $path.$new_filename;
+                            $filetype = wp_check_filetype( basename( $filename ), null );
+                            $wp_upload_dir = wp_upload_dir();
+                            $attachment = array(
+                                'guid'           => $wp_upload_dir['url'] . '/' . basename( $filename ), 
+                                'post_mime_type' => $filetype['type'],
+                                'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
+                                'post_content'   => '',
+                                'post_status'    => 'inherit'
+                            );
+                            // Insert attachment to the database
+                            $attach_id = wp_insert_attachment( $attachment, $filename, $parent_post_id ); ?>
+                            <script>
+                            $('.ccc').append('<input type="hidden" name="image<?php echo $count; ?>" value="<?php echo wp_get_attachment_url($attach_id); ?>">');
+                            </script>
+                            
+                         <?php   require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                            
+                            // Generate meta data
+                            $attach_data = wp_generate_attachment_metadata( $attach_id, $filename ); 
+                            wp_update_attachment_metadata( $attach_id, $attach_data );
+                        }
+                    }
+                }
+            }
+        //}
+    }
+    // Loop through each error then output it to the screen
+    if ( isset( $upload_message ) ) :
+        foreach ( $upload_message as $msg ){        
+            printf( __('<p class="bg-danger">%s</p>', 'wp-trade'), $msg );
+        }
+    endif;
+    
+    // If no error, show success message
+    if( $count != 0 ){
+        echo $count;   
+    }
+    exit();
+}
+?>
+
+<?php $url='http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']; ?>
+<a class="nav-link <?php if(strpos($url,'news_tag')){?>active<?php } ?>" id="news-tab" data-toggle="tab" href="#newsTab">News & Topics</a>
+
+//change howdy text admin 
+<?php 
+add_filter('gettext', 'change_howdy', 10, 3);
+
+function change_howdy($translated, $text, $domain) {
+
+    if (!is_admin() || 'default' != $domain)
+        return $translated;
+
+    if (false !== strpos($translated, 'Howdy'))
+        return str_replace('Howdy', 'Hello', $translated);
+
+    return $translated;
+}
+?>
+
+https://stackoverflow.com/questions/41949148/ajax-sending-input-file-and-additional-variable-to-php-file-through-ajax?rq=1
+
+//redirect users
+<?php 
+add_action( 'admin_init', 'redirect_usrs' );
+function redirect_usrs() {
+    if ( !is_user_logged_in() && is_page('add page slug or i.d here') && $_SERVER['PHP_SELF'] != '/wp-admin/admin-ajax.php' ) {
+        wp_redirect( esc_url(home_url('/login/') ) ); 
+        exit;
+    }
+}
+?>
+
+//no admin access
+<?php 
+! defined( 'ABSPATH' ) AND exit; 
+/* Plugin Name: (#66093) »kaiser« Deny Admin-UI access for certain roles */ 
+function no_admin_access() { 
+    $redirect = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : home_url( '/' );
+    if ( current_user_can( 'USER_ROLE_NAME_HERE' ) OR current_user_can( '2ND_ROLE_NAME_HERE' ) ) 
+        exit( wp_redirect( $redirect ) ); 
+}
+add_action( 'admin_init', 'no_admin_access', 100 );
+?>
+
+//for dropdown append and removal of previous dropdowns
+<script>
++function($){
+    $(document).on('change','.ctgry_slct', function() {
+        var count = $(".ctgry_drpdwns select").length;
+        var depth = $(this).attr('id');
+        var depth1='#'+depth;
+        if(depth=="secondLink"){
+            $('.ctgry_drpdwns select').remove();
+        }else{
+            $(depth1).nextAll('select').remove();
+        }
+        var cat_id = $(this).val();
+        var data = {
+            'action': 'category_dropdown',
+            'cat_id' :cat_id,
+            'depth' : count
+        };
+        $.post(ajaxurl, data, function(response) { 
+            $('.ctgry_drpdwns').append(response);
+        });
+    });
+}(jQuery); 
+</script>
+
+//get post id_by meta key and value
+<?php 
+if (!function_exists('get_post_id_by_meta_key_and_value')) {
+    function get_post_id_by_meta_key_and_value($key, $value) {
+        global $wpdb;
+        $meta = $wpdb->get_results("SELECT * FROM '".$wpdb->postmeta."' WHERE meta_key='".$wpdb->escape($key)."' AND meta_value='".$wpdb->escape($value)."'");
+        if (is_array($meta) && !empty($meta) && isset($meta[0])) {
+            $meta = $meta[0];
+        }       
+        elseif (is_object($meta)) {
+            return $meta->post_id;
+        }
+        else {
+            return false;
+        }
+    }
+}
+?>
+
+//cancel button function
+<input name="action" type="submit" value="Cancel" onclick="window.history.back();"/>

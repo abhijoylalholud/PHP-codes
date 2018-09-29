@@ -72,16 +72,24 @@ else { ?>
 //to get the featured image
 <img src="<?php echo wp_get_attachment_url( get_post_thumbnail_id($post->ID) ); ?>" alt="" />
 
+//get image alt featured image
+<?php $imgAlt = get_post_meta(get_post_thumbnail_id($post->ID),'_wp_attachment_image_alt', true); ?>
+
 //ternary example
 <a href="<?php echo (get_field('view_all_work_link',93)) ? get_field('view_all_work_link',93) : 'javascript:void(0)'; ?>"></a>
 
 <?php 
- if ( has_post_thumbnail() ) { 
- $imagebg =  wp_get_attachment_url( get_post_thumbnail_id() );                             
+if ( has_post_thumbnail() ) { 
+    $imagebg =  wp_get_attachment_url( get_post_thumbnail_id() );                             
 } else{
     $imagebg= get_stylesheet_directory_uri().'/images/noimage.jpg';
-}?>
-<?php if ( has_post_thumbnail($post->ID) ) { the_post_thumbnail('full', array('class'=>'img-responsive'));} ?>
+}
+?>
+<?php 
+if ( has_post_thumbnail($post->ID) ) { 
+    the_post_thumbnail('full', array('class'=>'img-responsive'));
+} 
+?>
 or <?php  array('class'=>'img-fluid'); ?>
 
 <?php $img=wp_get_attachment_image_src(get_post_thumbnail_id(),'full'); ?>
@@ -91,7 +99,7 @@ or <?php  array('class'=>'img-fluid'); ?>
 <?php $img=wp_get_attachment_image_src(get_post_thumbnail_id(get_option('page_for_posts')),'full'); ?>
 <img src="<?php echo $img[0]; ?>" alt=""/>
 
-//
+//get image id
 <?php 
 function pippin_get_image_id($image_url) {
     global $wpdb;
@@ -154,6 +162,8 @@ global variables for woocommerce
     $product = new WC_Product(get_the_ID()); 
 ?>
 
+//count published posts
+<?php $count_posts = wp_count_posts( 'post_type' )->publish; ?>
 
 //echo php version
 <?php echo phpinfo(); ?>
@@ -166,8 +176,10 @@ global variables for woocommerce
         <li><a href="<?php echo get_term_link($term -> slug, 'gen_subjects'); ?>"><?php echo $term->name; ?></a></li>
     <?php }
 ?>
-<?php 
-$post_tags = get_the_tags($post->ID); ?>
+
+//get tags of post
+<?php $post_tags = get_the_tags($post->ID); ?>
+
 //to get the cat name of normal post
 <?php
     $category = get_the_category($post->ID);
@@ -211,15 +223,16 @@ $post_tags = get_the_tags($post->ID); ?>
 //register a menu
 <?php 
 function custom_new_menu() {
- register_nav_menus(
-   array(
-     'my-custom-menu' => __( 'My Custom Menu' ),
-     'extra-menu' => __( 'Extra Menu' )
-   )
- );
+    register_nav_menus(
+        array(
+            'my-custom-menu' => __( 'My Custom Menu' ),
+            'extra-menu' => __( 'Extra Menu' )
+        )
+    );
 }
 add_action( 'init', 'custom_new_menu' );
 ?>
+
 //for getting a field
 <?php echo get_field('field_name'); ?>
 <?php the_field('field_name'); ?>
@@ -362,7 +375,7 @@ $(document).ready(function(){
     }
 }
 </style>
-/*--end loader--*/
+<!-- end loader -->
 
 //forgot password wordpress
 <?php 
@@ -491,6 +504,9 @@ function user_check(){
     <?php the_sub_field(''); ?>
 <?php endwhile; ?>
 
+//count no of posts in repeater field
+<?php $numrows = count(get_field('repeater_field_name')); ?>
+
 //post content
 <?php $pg=get_post($post->ID); echo $pg->post_content;?>
 
@@ -498,24 +514,24 @@ function user_check(){
 <ul class="nav nav-tabs">
 <?php 
     $wrk_qry=new WP_Query(array('post_type' => 'works','order'  => 'ASC','posts_per_page' => '-1','post_status' => 'publish'));
-    $f=1; while ($wrk_qry->have_posts()) { $wrk_qry->the_post(); 
+    $f=1; 
+    while ($wrk_qry->have_posts()) { $wrk_qry->the_post(); 
 ?>
-  <li class="nav-item">
-    <a class="nav-link <?php if($f==1){ echo 'active'; } ?>" data-toggle="tab" href="#<?php echo(basename(get_permalink()) ); ?>"><?php the_title(); ?></a>
-  </li>
-   <?php $f++; } wp_reset_postdata();  
-  echo '</ul><div class="tab-content">';
-   $e=1; while ($wrk_qry->have_posts()) { $wrk_qry->the_post(); ?>
-  <div class="tab-pane <?php if($e==1){ echo 'active'; } ?> container" id="<?php echo(basename(get_permalink()) ); ?>">
-    <div class="slide_show_box">
-    <?php while(the_repeater_field('school_logos')): ?>
-      <div class="slide_itm_comp"><img src="<?php the_sub_field('skl_logo'); ?>" alt="" /></div>
-    <?php endwhile; ?>
+    <li class="nav-item">
+        <a class="nav-link <?php if($f==1){ echo 'active'; } ?>" data-toggle="tab" href="#<?php echo(basename(get_permalink()) ); ?>"><?php the_title(); ?></a>
+    </li>
+<?php $f++; } wp_reset_postdata(); ?> 
+</ul><div class="tab-content">
+<?php $e=1; 
+while ($wrk_qry->have_posts()) { $wrk_qry->the_post(); ?>
+    <div class="tab-pane <?php if($e==1){ echo 'active'; } ?> container" id="<?php echo(basename(get_permalink()) ); ?>">
+        <div class="slide_show_box">
+            <?php while(the_repeater_field('school_logos')): ?>
+              <div class="slide_itm_comp"><img src="<?php the_sub_field('skl_logo'); ?>" alt="" /></div>
+            <?php endwhile; ?>
+        </div>
     </div>
-  </div>
-  <?php $e++; } wp_reset_postdata();  ?>
-
-
+<?php $e++; } wp_reset_postdata(); ?>
 
 //get post slug in wp_query
 <?php echo $post->post_name; ?>
@@ -783,7 +799,7 @@ function custom_post_type() {
         'menu_icon'           => 'dashicons-calendar-alt',
         'can_export'          => true,
         'has_archive'         => true,
-        'rewrite' => array('slug' => 'team'),
+        'rewrite' => array('slug' => 'video'),
         'exclude_from_search' => false,
         'publicly_queryable'  => true,
         'capability_type'     => 'post'
@@ -793,8 +809,8 @@ function custom_post_type() {
 add_action( 'init', 'custom_post_type', 0 ); ?>
 
 <?php 
+//category create
 add_action( 'init', 'create_article_taxonomies', 0 );
-
 // create two taxonomies, genres and writers for the post type "book"
 function create_article_taxonomies() {
     // Add new taxonomy, make it hierarchical (like categories)
@@ -1562,7 +1578,7 @@ function test_init(){
 global $LNG_DE;
 $LNG_DE = $dictionary;
 
-//login,logout 
+//login,logout woocommerce
 <div class="log_panel">
     <?php if ( is_user_logged_in() ) { ?>
         <a href="<?php echo get_permalink(woocommerce_get_page_id('myaccount')); ?>/customer-logout/"><?php _e('Logout','twentyseventeen'); ?></a>
@@ -1578,20 +1594,14 @@ $LNG_DE = $dictionary;
 //get thumbnail image of product category
 <?php 
     global $wp_query;
-
-    // get the query object
     $cat = $wp_query->get_queried_object();
-
-    // get the thumbnail id using the queried category term_id
-    $thumbnail_id = get_woocommerce_term_meta( $cat->term_id, 'thumbnail_id', true ); 
-
-    // get the image URL
+    $thumbnail_id = get_woocommerce_term_meta( $cat->term_id, 'thumbnail_id', true );
     $image = wp_get_attachment_url( $thumbnail_id );         
 ?> 
 <img src="<?php echo $image;?>" alt="">
+
 //to get field from category woocommerce
 <img src="<?php the_field('category_banner',$cat->taxonomy.'_'.$cat->term_id); ?>" alt="">
-
 
 //change post name in admin panel
 <?php 
@@ -1755,7 +1765,12 @@ switch ($count) {
   echo paginate_links( $pag_args1 );?>
 </ul>
 //for tags by counting
-<?php $tags = get_tags( array('orderby' => 'count', 'order' => 'DESC', 'number'=>28) ); foreach ( (array) $tags as $tag ) { echo '<li><a href="' . get_tag_link ($tag->term_id) . '" rel="tag">' . $tag->name . '</a></li>'; } ?>
+<?php 
+    $tags = get_tags( array('orderby' => 'count', 'order' => 'DESC', 'number'=>28) ); 
+    foreach ( (array) $tags as $tag ) { 
+        echo '<li><a href="' . get_tag_link ($tag->term_id) . '" rel="tag">' . $tag->name . '</a></li>'; 
+    } 
+?>
 
 <a href="<?php echo esc_url(home_url('/login/')); ?>" class="<?php echo esc_url(home_url('/login/'))==get_the_permalink(get_the_ID())?'active':''; ?>"><?php echo get_theme_mod('login_title'); ?></a>
 <a href="<?php echo esc_url(home_url('/sign-up/')); ?>" class="<?php echo esc_url(home_url('/sign-up/'))==get_the_permalink(get_the_ID())?'active':''; ?> sign_up_hd"><?php echo get_theme_mod('signup_title'); ?></a>
@@ -1848,6 +1863,7 @@ $.ajax({
     data: dataString,
     cache: false,
     success: function(result){
+        $('#cnt_frm')[0].reset();
         $("#msg").html(result);
         var xSeconds = 10000; // 1 second
         setTimeout(function() {
@@ -2159,11 +2175,12 @@ php code for scrolling to a section
 //background image code
 <img src="<?php echo get_background_image(); ?>" alt="">
 
-//for preg replace
+<!-- for preg replace -->
 <?php 
-preg_replace('/[^0-9]/', '',$phone); ?>
-
-<?php $phone=get_theme_mod('phone'); $tel=preg_replace('/[^0-9]/', '',$phone); ?>
+    preg_replace('/[^0-9]/', '',$phone); 
+    $phone=get_theme_mod('phone'); 
+    $tel=preg_replace('/[^0-9]/', '',$phone); 
+?>
 
 <?php 
 $seminar1 = array( 'post_type' => 'post', 'order' => 'DESC','posts_per_page' => -1); 
@@ -2172,31 +2189,33 @@ $seminar1 = array( 'post_type' => 'post', 'order' => 'DESC','posts_per_page' => 
             $total_pg = $wpb_all_query->max_num_pages;
         if ( $wpb_all_query->have_posts() ) : 
             while ( $wpb_all_query->have_posts() ) : $wpb_all_query->the_post(); ?>
-the structure
-
-      <?php endwhile; endif; wp_reset_query();?>
+        //the structure
+<?php endwhile; endif; wp_reset_query();?>
 <div class="btn_outr blog_btnprt">
     <a id="loadmore" href="javascript:void(0)" class="btn btn-default global_btn">View More Blog</a>
 </div>
 
 <script>
-  +function($){
++function($){
     var paged = 1;
     var total_page = <?php echo $total_pg;?>;
     var btn = $('.connect_btn').html();
     $("#loadmore").click(function(){
-      $('.connect_btn').html('<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>');
-      var data= { action: 'video_load_fun', 'paged' :parseInt(paged)+1 };
-      jQuery.post(ajaxurl, data,function(response) {
-      paged++;
-      if(total_page<=paged){
-        $('#loadmore').remove();
-      }
-      $(response).appendTo('.append-case').fadeIn('slow');
-      $('.connect_btn').html(btn);
-      });
+        $('.connect_btn').html('<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>');
+        var data= { 
+            action: 'video_load_fun', 
+            'paged' :parseInt(paged)+1 
+        };
+        jQuery.post(ajaxurl, data,function(response) {
+            paged++;
+            if(total_page<=paged){
+                $('#loadmore').remove();
+            }
+            $(response).appendTo('.append-case').fadeIn('slow');
+            $('.connect_btn').html(btn);
+        });
     });
-  }(jQuery);  
+}(jQuery);  
 </script>
  
 //add class using jquery
@@ -2258,6 +2277,55 @@ the structure
     </tbody>
 </table>
 
+<!-- Contact Form Mail template -->
+<div style="width: 100%; margin: 0 auto; vertical-align: middle; background-color:#DBBB0A;padding-top: 12px;padding-bottom: 12px; ">
+    <table cellpadding="0" cellspacing="0" style="width:550px; verticle-align:middle; background-color:#FFFFFF;margin: 0 auto;">
+        <tr>
+            <td style=" width:120px; padding:5px 20px 5px 20px;">
+                <strong>Name :</strong>
+            </td>
+            <td style=" padding:5px 20px 5px 20px;">
+                <p style="text-transform: uppercase;">'.$name.'</p>
+            </td>
+        </tr>
+        <tr>
+            <td style=" width:120px; padding:5px 20px 5px 20px;">
+                <strong>Email :</strong>
+            </td>
+            <td style=" padding:5px 20px 5px 20px;">
+                <p style="text-transform: uppercase;">'.$email.'</p>
+            </td>
+        </tr>  
+
+        <tr>
+            <td style=" width:120px; padding:5px 20px 5px 20px;">
+                <strong>Telephone Number:</strong>
+            </td>
+            <td style=" padding:5px 20px 5px 20px;">
+                <p style="text-transform: uppercase;">'.$phone.'</p>
+            </td>
+        </tr> 
+
+        <tr>
+            <td style=" width:120px; padding:5px 20px 5px 20px;">
+                <strong>Address :</strong>
+            </td>
+            <td style=" padding:5px 20px 5px 20px;">
+                <p style="text-transform: uppercase;">'.$adress.'</p>
+            </td>
+        </tr>  
+
+        <tr>
+            <td style=" width:120px; padding:5px 20px 5px 20px;">
+                <strong>Location :</strong>
+            </td>
+            <td style=" padding:5px 20px 5px 20px;">
+                <p style="text-transform: uppercase;">'.$lctn.'</p>
+            </td>
+        </tr>                    
+    </table>
+</div>
+
 //for bootstrap modal
 <a href="javascript:void(0)" data-toggle="modal" data-target="#video_Modal" class="play_btn">
 <div class="modal fade" id="video_Modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -2302,15 +2370,15 @@ jQuery(document).ready(function($) {
 
 //share in facebook,twitter,linkedln,google plus
 <div class="social-blk">
-     <a href="http://www.facebook.com/sharer.php?u=<?php the_permalink(); ?>" onclick="window.open(this.href, 'facebook','left=100,top=100,width=500,height=500,toolbar=1,resizable=0'); return false;" rel="nofollow" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-     <a href="http://twitter.com/share?url=<?php the_permalink(); ?>" onclick="window.open(this.href, 'Twitter','left=100,top=100,width=500,height=500,toolbar=1,resizable=0'); return false;" rel="nofollow" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-     <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=<?php the_permalink(); ?>" class="" target="_blank"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
-     <a class="fbCust" href="https://plus.google.com/share?url=<?php the_permalink(); ?>" onclick="window.open(this.href, 'Google Plus','left=100,top=100,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+    <a href="http://www.facebook.com/sharer.php?u=<?php the_permalink(); ?>" onclick="window.open(this.href, 'facebook','left=100,top=100,width=500,height=500,toolbar=1,resizable=0'); return false;" rel="nofollow" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+    <a href="http://twitter.com/share?url=<?php the_permalink(); ?>" onclick="window.open(this.href, 'Twitter','left=100,top=100,width=500,height=500,toolbar=1,resizable=0'); return false;" rel="nofollow" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=<?php the_permalink(); ?>" class="" target="_blank"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+    <a class="fbCust" href="https://plus.google.com/share?url=<?php the_permalink(); ?>" onclick="window.open(this.href, 'Google Plus','left=100,top=100,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-envelope" aria-hidden="true"></i></a>
 </div>
 //add role 
 <?php 
 function add_roless() {
-   add_role( 'subscriber_course', 'Course Subscriber', array(
+    add_role( 'subscriber_course', 'Course Subscriber', array(
         'read' => true, // True allows that capability
         'edit_posts' => true, // Allows user to edit their own posts
         'publish_posts'=>true, //Allows the user to publish, otherwise posts stays in draft mode
@@ -2333,6 +2401,7 @@ add_action( 'init', 'add_roless' );
 
 <a href="<?php echo wp_logout_url(); ?>">Logout</a>
 
+<!-- Sign up and login mail template -->
 <tr style="background: #fff;">
     <td>
         <table>
@@ -2412,7 +2481,7 @@ var $mcj = jQuery.noConflict(true);</script>
         <div class="input_bxx">
             <input type="text" value="" class="input_loop" placeholder="Name"/>
         </div>
-         <div class="input_bxx">
+        <div class="input_bxx">
             <input type="email" value="" class="input_loop" placeholder="Email"/>
         </div>
     </div>
@@ -2980,7 +3049,7 @@ $(document).ready(function (){
  */
 ?>
 
-//code for password in htaccess
+<!-- code for password in htaccess -->
 AuthType Basic
 AuthName "Password Protected Area"
 AuthUserFile /path/to/.htpasswd
@@ -3642,17 +3711,17 @@ add_filter( 'login_headertitle', 'mb_login_title' );
 //dynamic div structure with ajax
 <script type="text/javascript">
 +function($){
-  $('.ctegry').click(function(event){
-      var category=$(this).attr('data-title');
-      var data = {
-          'action': 'cat_post',
-          'category' :category
-      };
-      jQuery.post(ajaxurl, data, function(response) { 
-          $('.add_row').html(response);
-          //$(response).appendTo('.add_row').fadeIn('slow');
-      });
-  });
+    $('.ctegry').click(function(event){
+        var category=$(this).attr('data-title');
+        var data = {
+            'action': 'cat_post',
+            'category' :category
+        };
+        jQuery.post(ajaxurl, data, function(response) { 
+            $('.add_row').html(response);
+            //$(response).appendTo('.add_row').fadeIn('slow');
+        });
+    });
 }(jQuery);
 </script>
 
@@ -3660,65 +3729,59 @@ add_filter( 'login_headertitle', 'mb_login_title' );
     <div class="container">
         <div class="featured_projects">
             <ul> 
-            <?php 
-                $args = array(
-                    'hide_empty'=> true,
-                    'order' => 'ASC',
-                    'taxonomy' => 'category',
-                    'parent'         => 1
-                );
-                $categories = get_categories($args);
-                $cnt=1;
-                foreach($categories as $category) { 
-            ?>                                               
-                <li class="cate_links">
-                    <a href="javascript:void(0)" class="ctegry <?php if($cnt==1){ echo 'actve'; } ?>" data-title="<?php echo $category->term_id; ?>"><?php echo $category->name; ?></a>
-                </li>
-            <?php $cnt++; } ?>
-                
+                <?php 
+                    $args = array(
+                        'hide_empty'=> true,
+                        'order'     => 'ASC',
+                        'taxonomy'  => 'category',
+                        'parent'    => 1
+                    );
+                    $categories = get_categories($args);
+                    $cnt=1;
+                    foreach($categories as $category) { 
+                ?>                                               
+                    <li class="cate_links">
+                        <a href="javascript:void(0)" class="ctegry <?php if($cnt==1){ echo 'actve'; } ?>" data-title="<?php echo $category->term_id; ?>"><?php echo $category->name; ?></a>
+                    </li>
+                <?php $cnt++; } ?>   
             </ul>
         </div>
         <div class="featured_inr">
-            <div class="row add_row">
-                
-                
-            <?php $blog_query = new WP_Query( 
-                                    array( 
-                                        'post_type' => 'post', 
-                                        'posts_per_page'=> -1,                                          
-                                        'order' => 'DESC', 
-                                        'cat' =>1,
-                                        /*'tax_query' => array(array(
-                                            'taxonomy' => 'projects_cat',
-                                            'terms' => 21,
-                                            'field' => 'term_id'
-                                            
-                                        )),*/
-                                    )
-                                ); 
-                        if ( $blog_query->have_posts() ) :
-                            while ( $blog_query->have_posts() ) : $blog_query->the_post(); 
-                                $dt = get_the_date('F-d-Y');   
-                                $date = explode("-", $dt);
-            ?>
-                //the structure
+            <div class="row add_row">    
+                <?php $blog_query = new WP_Query( 
+                                array( 
+                                    'post_type' => 'post', 
+                                    'posts_per_page'=> -1,                                          
+                                    'order' => 'DESC', 
+                                    'cat' =>1,
+                                    /*'tax_query' => array(array(
+                                        'taxonomy' => 'projects_cat',
+                                        'terms' => 21,
+                                        'field' => 'term_id'
+                                        
+                                    )),*/
+                                )
+                            ); 
+                    if ( $blog_query->have_posts() ) :
+                        while ( $blog_query->have_posts() ) : $blog_query->the_post(); 
+                            $dt = get_the_date('F-d-Y');   
+                            $date = explode("-", $dt);
+                ?>
+                    //the structure
                 <?php endwhile; wp_reset_postdata(); endif; ?> 
             </div>
         </div>
     </div>
 </section>
 
-and in function page
+//and in function page
 <?php 
 add_action('wp_head','ajaxurl');
 function ajaxurl() {
 ?>
-<script type="text/javascript">
-var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
-
-</script>
-
-
+    <script type="text/javascript">
+        var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+    </script>
 <?php }
 add_action( 'wp_ajax_etf_post', 'etf_post' );
 add_action( 'wp_ajax_nopriv_etf_post', 'etf_post' );
@@ -3726,34 +3789,30 @@ add_action( 'wp_ajax_nopriv_etf_post', 'etf_post' );
 function etf_post(){
     $cat=$_REQUEST['category'];
     $blog_query = new WP_Query( 
-                    array( 
-                        'post_type' => 'post', 
-                        'posts_per_page'=> -1,                                          
-                        'order' => 'DESC', 
-                        'cat' =>$cat
-                        /*'tax_query' => array(array(
-                            'taxonomy' => 'projects_cat',
-                            'terms' => $cat,
-                            'field' => 'term_id'
-                            
-                        )),*/
-                    )
-                ); 
-                if ( $blog_query->have_posts() ) :
-                    while ( $blog_query->have_posts() ) : $blog_query->the_post(); 
-                            
-                            $dt = get_the_date('F-d-Y');   
-                            $date = explode("-", $dt);
-                            ?>
+        array( 
+            'post_type' => 'post', 
+            'posts_per_page'=> -1,                                          
+            'order' => 'DESC', 
+            'cat' =>$cat
+            /*'tax_query' => array(array(
+                'taxonomy' => 'projects_cat',
+                'terms' => $cat,
+                'field' => 'term_id'
+                
+            )),*/
+        )
+    ); 
+    if ( $blog_query->have_posts() ) :
+        while ( $blog_query->have_posts() ) : $blog_query->the_post(); 
+            $dt = get_the_date('F-d-Y');   
+            $date = explode("-", $dt);
+?>
     //the structure
     <?php endwhile; wp_reset_postdata(); endif; 
     die;
 }
 
-
-/**
-  sign up
-*/
+/* sign up */
 add_action( 'wp_ajax_signup', 'signup' );
 add_action( 'wp_ajax_nopriv_signup', 'signup' );
 function signup(){
@@ -3796,33 +3855,33 @@ function signup(){
         keyup: true,
         rules: {
             nme: {
-               required: true,
-           },               
+                required: true,
+            },               
            emle: {
-               required: true,
-               email: true,
-               pattern:/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-           },
-           psword: {
-               required: true,
-               minlength:8,
-               maxlength:12
-           },
-         },
-         messages: {
-             nme: {
-                 required: "Name is required.",
-             },
-             emle: {
-                 required: "Email is required.",
-                 email: "Please enter a valid email.",
-                 pattern: "Not a valid email pattern."
-             },
-             psword: {
-                 required: "Password is required.",
-                 minlength:"Password must be 8 characters long.", 
-                 maxlength: "Password shouldn't contain more than 12 characters."
-             },
+                required: true,
+                email: true,
+                pattern:/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            },
+            psword: {
+                required: true,
+                minlength:8,
+                maxlength:12
+            },
+        },
+        messages: {
+            nme: {
+                required: "Name is required.",
+            },
+            emle: {
+                required: "Email is required.",
+                email: "Please enter a valid email.",
+                pattern: "Not a valid email pattern."
+            },
+            psword: {
+                required: "Password is required.",
+                minlength:"Password must be 8 characters long.", 
+                maxlength: "Password shouldn't contain more than 12 characters."
+            },
         },
         submitHandler: function(form, e) {
             if(!$('#payform').hasClass('validated')){ 
@@ -3963,13 +4022,21 @@ add plugin -> https://wordpress.org/plugins/comet-cache/
 
 //mail function in php
 <?php
-$to = '';
-$subject = '';
-$message = '';
-$headers = 'From: '.$frmname.'<'.$frmemail.'>.' . "\r\n" .
-           'Reply-To: '.$frmemail.'.' . "\r\n" .
-           'X-Mailer: PHP/' . phpversion();
+$to = 'larry.cromwell@bigblockla.com';
+$subject = 'Contact form';
 
+$message = '<html><body>';
+$message .= '<p style="color:#080;font-size:18px;">Name: '.$name.'</p>';
+$message .= '<p style="color:#080;font-size:18px;">Email: '.$email.'</p>';
+$message .= '<p style="color:#080;font-size:18px;">Privacy Policy: '.$p_policy.'</p>';
+$message .= '<p style="color:#080;font-size:18px;">Terms: '.$t_terms.'</p>';
+$message .= '</body></html>';
+
+$headers = 'MIME-Version: 1.0' . "\r\n";
+$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+$headers .= 'From: '.$frmname.'<'.$frmemail.'>.' . "\r\n" .
+            'Reply-To: '.$frmemail.'.' . "\r\n" .
+            'X-Mailer: PHP/' . phpversion();
 mail($to, $subject, $message, $headers);
 ?>
 
@@ -3993,36 +4060,37 @@ mail($to, $subject, $message, $headers);
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
-    jQuery(document).ready( function($) {
-
-   $(".user_vote").click( function(e) {
-      e.preventDefault(); 
-      post_id = jQuery(this).attr("data-post_id")
-      nonce = jQuery(this).attr("data-nonce")
-
-      $.ajax({
-         type : "post",
-         dataType : "json",
-         url: '<?php echo site_url(); ?>/wp-admin/admin-ajax.php',
-         data : {action: "my_user_vote", post_id : post_id, nonce: nonce},
-         success: function(response) {
-            if(response.type == "success") {
-               $("#vote_counter").html(response.vote_count)
+jQuery(document).ready( function($) {
+    $(".user_vote").click( function(e) {
+        e.preventDefault(); 
+        post_id = jQuery(this).attr("data-post_id");
+        nonce = jQuery(this).attr("data-nonce");
+        $.ajax({
+            type : "post",
+            dataType : "json",
+            url: '<?php echo site_url(); ?>/wp-admin/admin-ajax.php',
+            data : {
+                action: "my_user_vote", 
+                post_id : post_id, 
+                nonce: nonce
+            },
+            success: function(response) {
+                if(response.type == "success") {
+                   $("#vote_counter").html(response.vote_count)
+                }
+                else {
+                   alert("Your vote could not be added")
+                }
+            },
+            error: function(response) {
+                alert(response);
             }
-            else {
-               alert("Your vote could not be added")
-            }
-         }
-      });   
-
-   });
-
+        });   
+    });
 });
 </script>
 
-/**
- * Adds WooCommerce support
- */
+<!-- Adds WooCommerce support -->
 <?php 
 add_action( 'after_setup_theme', 'woocommerce_support' );
 function woocommerce_support() {
@@ -4030,38 +4098,33 @@ function woocommerce_support() {
 }
 
 add_action( 'init', 'my_script_enqueuer' );
-
 function my_script_enqueuer() {
- 
-   wp_localize_script( 'my_voter_script', 'myAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));        
-
+   wp_localize_script( 'my_voter_script', 'myAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));
    wp_enqueue_script( 'jquery' );
    wp_enqueue_script( 'my_voter_script' );
-
 }
+
 add_action("wp_ajax_my_user_vote", "my_user_vote");
 add_action("wp_ajax_nopriv_my_user_vote", "my_must_login");
 
 function my_user_vote() {
+    if ( !wp_verify_nonce( $_REQUEST['nonce'], "my_user_vote_nonce")) {
+        exit("No naughty business please");
+    }   
+    $vote_count = get_post_meta($_REQUEST["post_id"], "votes", true);
+    $vote_count = ($vote_count == '') ? 0 : $vote_count;
+    $new_vote_count = $vote_count + 1;
 
-   if ( !wp_verify_nonce( $_REQUEST['nonce'], "my_user_vote_nonce")) {
-      exit("No naughty business please");
-   }   
+    $vote = update_post_meta($_REQUEST["post_id"], "votes", $new_vote_count);
 
-   $vote_count = get_post_meta($_REQUEST["post_id"], "votes", true);
-   $vote_count = ($vote_count == '') ? 0 : $vote_count;
-   $new_vote_count = $vote_count + 1;
-
-   $vote = update_post_meta($_REQUEST["post_id"], "votes", $new_vote_count);
-
-   if($vote === false) {
-      $result['type'] = "error";
-      $result['vote_count'] = $vote_count;
-   }
-   else {
-      $result['type'] = "success";
-      $result['vote_count'] = $new_vote_count;
-   }
+    if($vote === false) {
+        $result['type'] = "error";
+        $result['vote_count'] = $vote_count;
+    }
+    else {
+        $result['type'] = "success";
+        $result['vote_count'] = $new_vote_count;
+    }
 
    if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
       $result = json_encode($result);
@@ -4072,7 +4135,6 @@ function my_user_vote() {
    }
 
    die();
-
 }
 
 function my_must_login() {
@@ -4541,40 +4603,40 @@ wordpressjohnson@gmail.com
 
 <script>
 $(document).ready(function() {
-   // When the Upload button is clicked...
-   $(document).on('change', '.btn-upload', function(e){
+    // When the Upload button is clicked...
+    $(document).on('change', '.btn-upload', function(e){
    
-   $('.loader').show();
-   e.preventDefault;
+    $('.loader').show();
+    e.preventDefault;
 
-       var fd = new FormData();
-       var files_data = $('.files-data'); // The <input type="file" /> field
+        var fd = new FormData();
+        var files_data = $('.files-data'); // The <input type="file" /> field
        
-       // Loop through each data and create an array file[] containing our files data.
-       $.each($(files_data), function(i, obj) {
-           $.each(obj.files,function(j,file){
+        // Loop through each data and create an array file[] containing our files data.
+        $.each($(files_data), function(i, obj) {
+            $.each(obj.files,function(j,file){
                fd.append('files[' + j + ']', file);
-           })
-       });
+            })
+        });
        
-       // our AJAX identifier
-       fd.append('action', 'cvf_upload_files');  
+        // our AJAX identifier
+        fd.append('action', 'cvf_upload_files');  
        
-       // uncomment this code if you do not want to associate your uploads to the current page.
-       fd.append('post_id', <?php echo $post->ID; ?>); 
+        // uncomment this code if you do not want to associate your uploads to the current page.
+        fd.append('post_id', <?php echo $post->ID; ?>); 
 
-       $.ajax({
-           type: 'POST',
-           url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
-           data: fd,
-           contentType: false,
-           processData: false,
-           success: function(response){
-               location.reload(true);
-               $('.loader').hide();
-           }
-       });
-   });
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function(response){
+                location.reload(true);
+                $('.loader').hide();
+            }
+        });
+    });
 });
 
 
@@ -4763,5 +4825,226 @@ if (!function_exists('get_post_id_by_meta_key_and_value')) {
 }
 ?>
 
-//cancel button function
-<input name="action" type="submit" value="Cancel" onclick="window.history.back();"/>
+//error report php
+<?php
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+?>
+
+disable submit button with checkbox
+<script>
+$(document).on('change','#is_chck',function(){
+    if($(this).is(':checked')) {
+        $('input[type="submit"]').prop('disabled', false);
+    }
+    else {
+        $('input[type="submit"]').prop('disabled', true);
+    }
+});
+</script>
+
+//sort posts with numeric order
+<?php 
+function sort_terms ( $terms ) {
+    $sort_terms = array();
+    foreach($terms as $term) {
+        $sort_terms[$term->name] = $term;
+    }
+    uksort( $sort_terms, 'strnatcmp'); 
+    return $sort_terms;
+}
+?>
+
+
+<?php 
+$termSlugs = array_map(function (\WP_Term $term) {
+        return $term->slug;
+    }, get_terms([
+        'name__like' => $keyword,
+    ]));
+?>
+
+<script>
+$(".2nd-a").click(function(){
+    if($(this).prev().hasClass("active")){    
+    }  
+});
+</script>
+
+// hide coupon field on cart page
+<?php 
+function hide_coupon_field_on_cart( $enabled ) {
+    if ( is_cart() ) {
+        $enabled = false;
+    }
+    return $enabled;
+}
+add_filter( 'woocommerce_coupons_enabled', 'hide_coupon_field_on_cart' );
+// hide coupon field on checkout page
+function hide_coupon_field_on_checkout( $enabled ) {
+    if ( is_checkout() ) {
+        $enabled = false;
+    }
+    return $enabled;
+}
+add_filter( 'woocommerce_coupons_enabled', 'hide_coupon_field_on_checkout' );
+?>
+
+<!-- unset download option from my account page woocommerce -->
+<?php 
+function cstm_my_account_menu_items( $items ) { 
+    unset($items['downloads']); 
+    return $items; 
+} 
+add_filter( 'woocommerce_account_menu_items', 'cstm_my_account_menu_items' );
+
+/*Left join example*/
+global $wpdb;
+$like_query = "";
+$i=0;
+foreach($keyword as $key){
+    $like_query .= $i==0?"$wpdb->terms.name LIKE '%".$key."%' ":"AND $wpdb->terms.name LIKE '%".$key."%' ";
+    $i++;
+}
+$querystr = "SELECT DISTINCT $wpdb->posts.ID FROM $wpdb->posts 
+        LEFT JOIN $wpdb->postmeta ON($wpdb->posts.ID = $wpdb->postmeta.post_id)
+        LEFT JOIN $wpdb->term_relationships ON($wpdb->posts.ID = $wpdb->term_relationships.object_id)
+        LEFT JOIN $wpdb->term_taxonomy ON($wpdb->term_relationships.term_taxonomy_id = $wpdb->term_taxonomy.term_taxonomy_id)
+        LEFT JOIN $wpdb->terms ON($wpdb->term_taxonomy.term_id = $wpdb->terms.term_id)
+        WHERE (".$like_query.")
+        AND $wpdb->term_taxonomy.taxonomy = 'video_keyword'
+        AND $wpdb->posts.post_status = 'publish'
+        AND $wpdb->posts.post_type = 'videos'
+        ORDER BY $wpdb->posts.ID DESC
+    ";
+$results = $wpdb->get_results( $querystr, OBJECT );
+if(!empty($results)){
+    foreach($results as $res){
+
+    }
+}
+
+//rating system wordpress
+$stars=get_field('rating_section'); 
+for($count=1;$count<=$stars;$count++){ ?>
+    <i class="fa fa-star" aria-hidden="true" style="color:#f5cf1b;  font-size:20px;" ></i>
+<?php } 
+for($count=1;$count<=(5-$stars);$count++){ ?>
+    <i class="fa fa-star" aria-hidden="true" style="color:#D3D3D3; font-size:20px;" ></i>
+<?php } ?>
+
+<!-- instagram feed -->
+<?php 
+$access_token="8522380055.1677ed0.18d4520f193c48a5940518577bde5ccb";
+$photo_count=13;
+     
+$json_link="https://api.instagram.com/v1/users/self/media/recent/?";
+$json_link.="access_token={$access_token}&count={$photo_count}";
+$json = file_get_contents($json_link);
+$obj = json_decode($json, true, 512, JSON_BIGINT_AS_STRING);
+foreach ($obj['data'] as $post) { 
+    $pic_text=$post['caption']['text'];
+    $pic_link=$post['link'];   
+    $pic_src=str_replace("http://", "https://", $post['images']['standard_resolution']['url']); 
+    if($i==2){?> 
+        <div class="feedInsta-e blocks_two wow bounceInDown" data-wow-delay="0.2s">
+            <a href="javascript:void(0)" class="btn btn_Orange">
+                <span>
+                    <svg viewBox="0 0 32 32">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svgInstagram"></use>
+                    </svg>
+                </span>Instagram
+            </a>
+        </div>
+    <?php 
+    } 
+    else { 
+        echo "<div class='feedInsta-e wow flipInY' data-wow-delay='{$i}'>";        
+            echo "<a href='{$pic_link}' target='_blank' style='background-image: url({$pic_src});'>";   
+            echo "</a>";
+        echo "</div>";
+    }
+    $i++; 
+}  
+?>
+
+<!-- window load -->
+<script>
+$(window).on('load', function () {
+    $(".loading-indicator").delay(2000).fadeOut("slow");
+});
+</script>
+
+<!-- Language translate -->
+<?php 
+    global $post;
+    $current_lang=qtranxf_getLanguage(); 
+?>
+<select class="selectpicker" onChange="self.location='<?php echo esc_url( home_url('/') ); ?>?lang='+this.options[this.selectedIndex].value" name="userLanguage" id="userLanguage"> 
+    <option <?php if ($current_lang == "en") { ?>selected="selected"<?php } ?> value="en">EN</option> 
+    <option <?php if ($current_lang == "es") { ?>selected="selected"<?php } ?> value="es">ES</option>
+</select>
+
+<a <?php if($current_lang=="ja") { ?>class="active-lang"<?php } else{?> <?php }?> href="<?php echo str_replace('/en/','/',get_the_permalink($post->ID)).'?lang=ja';?>">Japanese</a>
+<span> / </span>
+<a <?php if($current_lang=="en") {?>class="active-lang"<?php } else{?> <?php }?> href="<?php echo str_replace('/ja/','/',get_the_permalink($post->ID)).'?lang=en';?>">English</a>
+
+<!-- wordpress default search form -->
+<?php get_search_form(); ?>
+
+
+<?php
+    remove_shortcode('gallery');
+    $gallery_content = get_field('gallery', $post->ID);
+    preg_match('/\[gallery.*ids=.(.*).\]/', $gallery_content, $ids);
+    $image_ids = explode(",", $ids[1]); 
+    $count = 0;
+    $max = 4;
+    foreach($image_ids as $image_id) {
+        $count++;
+        if ($count > $max) {
+            break;
+        }
+        $image = wp_get_attachment_image_src( $image_id, 'large', false );
+        echo '<div class="image">';
+            echo '<img src="'.$image[0].'" alt="">';
+        echo '</div>';
+    }
+?>
+
+
+<?php
+/**
+ * Add another email recipient for admin New Order emails if a shippable product is ordered
+ *
+ * @param string $recipient a comma-separated string of email recipients (will turn into an array after this filter!)
+ * @param \WC_Order $order the order object for which the email is sent
+ * @return string $recipient the updated list of email recipients
+ */
+function sv_conditional_email_recipient( $recipient, $order ) {
+    // Bail on WC settings pages since the order object isn't yet set yet
+    // Not sure why this is even a thing, but shikata ga nai
+    $page = $_GET['page'] = isset( $_GET['page'] ) ? $_GET['page'] : '';
+    if ( 'wc-settings' === $page ) {
+        return $recipient; 
+    }
+    // just in case
+    if ( ! $order instanceof WC_Order ) {
+        return $recipient; 
+    }
+    $items = $order->get_items();
+    // check if a shipped product is in the order   
+    foreach ( $items as $item ) {
+        $product = $order->get_product_from_item( $item );
+
+        // add our extra recipient if there's a shipped product - commas needed!
+        // we can bail if we've found one, no need to add the recipient more than once
+        if ( $product && $product->needs_shipping() ) {
+            $recipient .= ', warehouse-manager@example.com';
+            return $recipient;
+        }
+    }
+    return $recipient;
+}
+add_filter( 'woocommerce_email_recipient_new_order', 'sv_conditional_email_recipient', 10, 2 );
+

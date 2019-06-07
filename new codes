@@ -590,24 +590,29 @@ function user_check(){
 
 //enable content editor in post page
 <?php 
+/*for below wordpress 4.9*/
 if( ! function_exists( 'fix_no_editor_on_posts_page' ) ) {
-
-    /**
-     * Add the wp-editor back into WordPress after it was removed in 4.2.2.
-     *
-     * @param Object $post
-     * @return void
-     */
     function fix_no_editor_on_posts_page( $post ) {
         if( isset( $post ) && $post->ID != get_option('page_for_posts') ) {
             return;
         }
-
         remove_action( 'edit_form_after_title', '_wp_posts_page_notice' );
         add_post_type_support( 'page', 'editor' );
     }
     add_action( 'edit_form_after_title', 'fix_no_editor_on_posts_page', 0 );
- }
+}
+
+/*for wordpress 4.9 & above*/
+if( ! function_exists( 'fix_no_editor_on_posts_page' ) ) {
+    function fix_no_editor_on_posts_page( $post_type, $post ) {
+        if( isset( $post ) && $post->ID != get_option('page_for_posts') ) {
+            return;
+        }
+        remove_action( 'edit_form_after_title', '_wp_posts_page_notice' );
+        add_post_type_support( 'page', 'editor' );
+    }
+    add_action( 'add_meta_boxes', 'fix_no_editor_on_posts_page', 0, 2 );
+}
 ?>
 
 //array and object diff
@@ -723,6 +728,7 @@ jQuery(document).ready(function($) {
 });
 </script>
 
+<!-- scroll -->
 <script>
     $(document).ready(function(){ 
         $(".dwn-arw").click(function(){ 
@@ -1513,7 +1519,8 @@ function check_for_key( $user, $username, $password ){
     return $user;
 }
 ?>
-//for custom widget create
+
+<!-- widget create -->
 <?php 
 function custom_widget() {
     register_sidebar( array(
@@ -1659,35 +1666,6 @@ function revcon_change_post_object() {
 add_action( 'admin_menu', 'revcon_change_post_label' );
 add_action( 'init', 'revcon_change_post_object' );
 ?>
-
-//for load more post
-<script>
-    +function($){
-        var paged = 2;
-        var total_page = <?php echo $total_pg;?>;
-        $("#loadmore").click(function(){
-            var data= { 
-                action: 'video_load_fun',
-                'paged' :parseInt(paged)+1 
-            };
-            jQuery.post(ajaxurl, data,function(response) {
-                paged++;
-                if(total_page<paged){
-                    $('.text-view-more').remove();
-                }
-                $(response).appendTo('.append-case').fadeIn('slow');
-                $(".various").fancybox({
-                    'width'             : '75%',
-                    'height'            : '75%',
-                    'autoScale'         : false,
-                    'transitionIn'      : 'none',
-                    'transitionOut'     : 'none',
-                    'type'              : 'iframe'
-                });
-            });
-        });
-    }(jQuery);  
-</script>
 
 // Dropdown toggle
 <script>
@@ -1861,41 +1839,32 @@ $(document).ready(function(){
 });
 </script>
 
+<!-- Logout code -->
 <a class="logout" href="<?php echo wp_logout_url(home_url()); ?>">Logout</a>
- 
+
+<!-- wp query by page -->
 <?php 
     $query = new WP_Query( 'pagename=xyz' );
     while ( $query->have_posts() ) : $query->the_post(); 
 ?>
 
-//get attribute value and store in a hiden input
+<!-- get attribute value and store in a hiden input -->
 <script>
-(function($){
-    $(".project-type").click(function(){
-        var project_type =$(this).attr('target-value');
-        $("#project-type-1").val(project_type);
-    });
+(function($){  
+$(".submit-details" ).click(function() {
+    var date = $(this).attr('data-date');
+    var date = $(this).data('date'); //similar to above line
+    var church = $(this).attr('data-church');
+    $('#date_hidden').val(date);
+    $('#church_hidden').val(church);
+});
 })(jQuery);
 </script>
 
 <script>
-(function($){  
-    $(".submit-details" ).click(function() {
-        var date = $(this).attr('data-date');
-        var time = $(this).attr('data-time');
-        var name = $(this).attr('data-name');
-        var lastname = $(this).attr('data-lastname');
-        var church = $(this).attr('data-church');
-        $('#date_hidden').val(date);
-        $('#time_hidden').val(time);
-        $('#name_hidden').val(name);
-        $('#last_name_hidden').val(lastname);
-        $('#church_hidden').val(church);
-    })
-    $('.close').click(function(){
-        window.location.href="";
-    })
-})(jQuery);
+$('.close').click(function(){
+    window.location.href="http://esolz.co.in/lab5/wordpress/travel_website";
+});
 </script>
 
 //submit data and show message in ajax
@@ -1923,7 +1892,7 @@ $.ajax({
 });
 </script>
 
-//ajax load more post
+<!-- ajax load more post -->
 in function page
 <?php 
 add_action('wp_head','ajaxurl');
@@ -1978,11 +1947,20 @@ js code
         var data= { action: 'video_load_fun', 'paged' :parseInt(paged)+1 };
         jQuery.post(ajaxurl, data,function(response) {
             paged++;
-            if(total_page<=paged){
+            if(total_page<=paged) {
                 $('#loadmore').remove();
             }
             $(response).appendTo('.append-case').fadeIn('slow');
             $('.connect_btn').html(btn);
+
+            /*$(".various").fancybox({
+                'width'             : '75%',
+                'height'            : '75%',
+                'autoScale'         : false,
+                'transitionIn'      : 'none',
+                'transitionOut'     : 'none',
+                'type'              : 'iframe'
+            });*/
         });
     });
 }(jQuery);  
@@ -2293,42 +2271,6 @@ add_filter('pre_get_posts','searchfilter');
     $phone=get_theme_mod('phone'); 
     $tel=preg_replace('/[^0-9]/', '',$phone); 
 ?>
-
-<?php 
-$seminar1 = array( 'post_type' => 'post', 'order' => 'DESC','posts_per_page' => -1); 
-    $totalpage=query_posts($seminar1);  
-        $wpb_all_query = new WP_Query(array('order'=>'DESC','post_type'=>'post', 'post_status'=>'publish', 'paged'=>1, 'posts_per_page'=>3)); 
-            $total_pg = $wpb_all_query->max_num_pages;
-        if ( $wpb_all_query->have_posts() ) : 
-            while ( $wpb_all_query->have_posts() ) : $wpb_all_query->the_post(); ?>
-        //the structure
-<?php endwhile; endif; wp_reset_query();?>
-<div class="btn_outr blog_btnprt">
-    <a id="loadmore" href="javascript:void(0)" class="btn btn-default global_btn">View More Blog</a>
-</div>
-
-<script>
-+function($){
-    var paged = 1;
-    var total_page = <?php echo $total_pg;?>;
-    var btn = $('.connect_btn').html();
-    $("#loadmore").click(function(){
-        $('.connect_btn').html('<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>');
-        var data= { 
-            action: 'video_load_fun', 
-            'paged' :parseInt(paged)+1 
-        };
-        jQuery.post(ajaxurl, data,function(response) {
-            paged++;
-            if(total_page<=paged){
-                $('#loadmore').remove();
-            }
-            $(response).appendTo('.append-case').fadeIn('slow');
-            $('.connect_btn').html(btn);
-        });
-    });
-}(jQuery);  
-</script>
  
 //add class using jquery
 <script>
@@ -2472,7 +2414,7 @@ jQuery(document).ready(function($) {
     $pending_reservations = $wpdb->get_results('SELECT booking_calendars.cal_name FROM {$wpdb->prefix}booking_calendars AS booking_calendars INNER JOIN {$wpdb->prefix}booking_reservation AS booking_reservations ON booking_calendars.id =  booking_reservations.calendar_id WHERE status LIKE "pending"'); 
 ?>                          
 
-<!-- share in facebook,twitter,linkedln,google plus -->
+<!-- share in facebook,twitter,linkedln,google plus,pinterest -->
 <div class="social-blk">
     <a href="http://www.facebook.com/sharer.php?u=<?php the_permalink(); ?>" onclick="window.open(this.href, 'facebook','left=100,top=100,width=500,height=500,toolbar=1,resizable=0'); return false;" rel="nofollow" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a>
 
@@ -2481,6 +2423,8 @@ jQuery(document).ready(function($) {
     <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=<?php the_permalink(); ?>" class="" target="_blank"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
 
     <a class="fbCust" href="https://plus.google.com/share?url=<?php the_permalink(); ?>" onclick="window.open(this.href, 'Google Plus','left=100,top=100,width=500,height=500,toolbar=1,resizable=0'); return false;"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+
+    <a href="http://pinterest.com/pin/create/button/?url=<?php the_permalink(); ?>" target="_blank"><i class="fab fa-pinterest-p"></i></a>
 </div>
 
 //add role 
@@ -2888,6 +2832,7 @@ $results = $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."em_locations WHER
 $results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}options WHERE option_id = 1", OBJECT );
 ?>
 
+<!-- scroll -->
 <script>
 $(function() { 
     $(".howItNav li a ").on("click", function( e ) { 
@@ -2899,7 +2844,7 @@ $(function() {
         }, 600);
     });
 });
-//console.log(target); $('.howItNav li').removeClass('active'); $(this).parent('li').addClass('active'); }); });
+//$('.howItNav li').removeClass('active');
 </script>
 
 //scroll to a section 
@@ -2923,7 +2868,7 @@ $(function() {
 }(jQuery);
 </script>
 
-//scroll down menu
+<!-- menu scroll and # scroll -->
 <script>
 +function($){
     $('a[href*="#"]:not([href="#"])').click(function() {
@@ -2934,13 +2879,13 @@ $(function() {
             :not([href=#])
             exclude anchors with href exactly equals to #
         */
-        $('body').removeClass('navbar-active');
+        $('body').removeClass('navbar-active'); //only for menu
         if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
             var target = $(this.hash);
             target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
             if (target.length) {
                 $('html, body').animate({
-                    scrollTop: target.offset().top -120
+                    scrollTop: target.offset().top -120 // - or + value for target element position
                 }, 1000);
                 return false;
             }
@@ -2949,7 +2894,7 @@ $(function() {
 }(jQuery);
 </script>
 
-<!-- jquery starts -->
+<!-- jquery syntax -->
 <script>
 /*jquery noconflict*/
 +function($){ 
@@ -3213,7 +3158,7 @@ if ( !isset($_COOKIE['sitename_newvisitor'])) {
 <script>
 $(function(){ 
     $('.regstr_btnn').click(function(){ 
-        $('#joinModal').one('hidden.bs.modal', function(){ 
+        $('#joinModal').on('hidden.bs.modal', function(){ 
             $('#regModal').modal('show'); 
         }).modal('hide'); 
     }); 
@@ -3468,32 +3413,32 @@ add_action( 'wp_ajax_resetpassword', 'resetpassword' );
 add_action( 'wp_ajax_nopriv_resetpassword', 'resetpassword' );
 function resetpassword(){
     $email  = $_POST['email'];
-if(!empty($email)){
-    //$email  = $_POST['resetemail'];
-    $random_password=wp_generate_password(12,false);
-    $user = get_user_by('email',$email);
-    $update_user = wp_update_user( array (
-      'ID' => $user->ID,
-      'user_pass' => $random_password
-    )
-  );
-    if( $update_user ) {
-        $recipient1 = $email;
-        $uid1 = md5(uniqid(time()));
-        $subject1 = 'New Password!!';
-        $homeurl=home_url('/');
-        $body1 = '<strong>New Password : '.$random_password.'<br></strong><br> You can login with this temporary password. To change your password please click <a target="_blank" href="'.$homeurl.'wp-admin/profile.php">here</a>';
-        $admin_eml1=get_option('admin_email');
+    if(!empty($email)){
+        //$email  = $_POST['resetemail'];
+        $random_password=wp_generate_password(12,false);
+        $user = get_user_by('email',$email);
+        $update_user = wp_update_user( array (
+              'ID' => $user->ID,
+              'user_pass' => $random_password
+            )
+        );
+        if( $update_user ) {
+            $recipient1 = $email;
+            $uid1 = md5(uniqid(time()));
+            $subject1 = 'New Password!!';
+            $homeurl=home_url('/');
+            $body1 = '<strong>New Password : '.$random_password.'<br></strong><br> You can login with this temporary password. To change your password please click <a target="_blank" href="'.$homeurl.'wp-admin/profile.php">here</a>';
+            $admin_eml1=get_option('admin_email');
 
-        $headers1 = "MIME-Version: 1.0\r\n";
-        $headers1 .= "Content-type:text/html;charset=UTF-8\r\n";
-        $headers1 .= "From: Tramposaurus Treks <no-reply@tramposaurustreks.com>\r\n" .
-                     "Cc: abhijoy.samaddar@esolzmail.com"
-                     "Reply-To: no-reply@tramposaurustreks.com\r\n" .
-                     "X-Mailer: PHP/" . phpversion();
-        mail($recipient1, $subject1, $body1, $headers1);
+            $headers1 = "MIME-Version: 1.0\r\n";
+            $headers1 .= "Content-type:text/html;charset=UTF-8\r\n";
+            $headers1 .= "From: Tramposaurus Treks <no-reply@tramposaurustreks.com>\r\n" .
+                         "Cc: abhijoy.samaddar@esolzmail.com"
+                         "Reply-To: no-reply@tramposaurustreks.com\r\n" .
+                         "X-Mailer: PHP/" . phpversion();
+            mail($recipient1, $subject1, $body1, $headers1);
+        }
     }
-  }
 }
 ?>
 <script>
@@ -3610,39 +3555,6 @@ set timeout example
     }(jQuery);
 </script>
 
-<?php
-function my_login_logo() { ?>
-    <style type="text/css">
-        .login h1 a {
-            background-image: url(<?php echo get_stylesheet_directory_uri(); ?>/assets/images/footer_logo.png) !important;
-            padding-bottom: 14px !important;
-            width: 231px !important;
-            height: 100px !important;
-            background-size: contain !important;
-            background-position : center center !important;
-        }
-        .interim-login.login h1 a{
-            width: 180px !important;
-        }
-         input#wp-submit {
-            color: #fff;
-            background: #1c8db0;
-            font-size: 17px;
-            padding: 2px 23px;
-            height: 34px;
-            border: none;
-            box-shadow: none;
-            text-shadow: none;
-        }
-        input#wp-submit:hover{
-                background: #3f4b4e;
-                color: #fff;
-        }
-    </style>
-<?php }
-add_action( 'login_enqueue_scripts', 'my_login_logo' );
-?>
-
 <!-- for tab -->
 <nav>
    <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -3684,16 +3596,20 @@ add_action( 'login_enqueue_scripts', 'my_login_logo' );
 
 <?php $cnt=1; 
     $artcle_args = array(
-     'hide_empty'=> true,
-     'orderby' => 'id',
-     'taxonomy' => 'maps_cat',
-     //'parent' => 0
+        'hide_empty'=> true,
+        'orderby' => 'id',
+        'taxonomy' => 'maps_cat',
+        //'parent' => 0
     );
- $maps_cat = get_categories($artcle_args); //print_r($maps_cat);
- foreach($maps_cat as $map_cat) { ?>
-      <li class="nav-item"><a class="nav-link <?php if($cnt==1) echo 'active'; ?>" data-toggle="tab" href="#<?php echo $cnt; ?>" role="tab"><?php echo $map_cat->name; ?><input type="hidden" class="slug" name="slug" value="<?php echo $map_cat->slug; ?>"></a></li>
- <?php $cnt++; } ?>
+    $maps_cat = get_categories($artcle_args); //print_r($maps_cat);
+    foreach($maps_cat as $map_cat) { ?>
+        <li class="nav-item"><a class="nav-link <?php if($cnt==1) echo 'active'; ?>" data-toggle="tab" href="#<?php echo $cnt; ?>" role="tab"><?php echo $map_cat->name; ?><input type="hidden" class="slug" name="slug" value="<?php echo $map_cat->slug; ?>"></a></li>
+<?php $cnt++; } ?>
 
+<?php
+'hide_empty'=> 0, //false
+'hide_empty'=> 1, //true
+?>
 
 <!-- popular post -->
 <?php 
@@ -3846,6 +3762,9 @@ add_action('wp_head', 'hook_analytics');
 <?php 
 function my_login_logo() { ?>
     <style type="text/css">
+        .login{
+            background: #F8A51F;
+        }
         .login h1 a {
             background-image: url(https://nfbpasfl18.wpengine.com/wp-content/uploads/2018/04/logo.png) !important;
             padding-bottom: 14px !important;
@@ -4088,7 +4007,7 @@ function signup(){
 }(jQuery);
 </script> 
 
-
+<!-- nav menu using foreach -->
 <?php 
     $nav = wp_get_nav_menu_items( 'Top Menu' );
     foreach($nav as $nv):
@@ -5283,7 +5202,7 @@ $(document).ready(function (){
 </script>
 
 <!-- work button like anchor -->
-<button class="btn btn-warning" type="button" onclick="location.href='<?php echo site_url("control").'/managecontact/delete/'.$row['id']; ?>';"> Confirm</button>
+<button class="btn btn-warning" type="button" onclick="location.href='<?php echo site_url("control").'/managecontact/delete/'.$row['id']; ?>';">Confirm</button>
 
 <!-- remove related products woocommerce -->
 <?php 
@@ -5779,16 +5698,6 @@ function file_upload_test() {
 }
 ?>
 
-<?php 
-add_filter( 'body_class', 'custom_body_class' ); 
-function custom_body_class( $classes ) { 
-    if ( is_page( '38034' ) ) { 
-        $classes[] = 'new-class'; 
-        return $classes; 
-    } 
-}
-?>
-
 <!-- event calender -->
 plugin url -> https://wpshindig.com/event-widgets/
 
@@ -5797,37 +5706,596 @@ plugin url -> https://wpshindig.com/event-widgets/
 update_field('uploaded_photo', $attach_id, $post_id);
 ?>
 
-<?php                                  
+<?php  
+    global $wpdb;                                
     $related=$wpdb->get_results("SELECT * FROM `fund_type_demo` WHERE (`from_funds`='".$mainquery[0]->id."' or `to_funds`='".$mainquery[0]->id."') and `totalweighted`!=0 and (`from_funds`!=`to_funds`) ORDER BY `totalweighted` desc limit 0,4");
-
-
-$search_term = explode( ' ', get_search_query( false ) );   
-global $wpdb;
-$select = "SELECT DISTINCT t.*, tt.* FROM wp_terms AS t INNER JOIN wp_term_taxonomy AS tt ON t.term_id = tt.term_id WHERE tt.taxonomy IN ('category')";      
-$first = true;
-foreach ( $search_term as $s ){
-    if ( $first ){
-        $select .= " AND (t.name LIKE '%s')";
-        $string_replace[] = '%'.$wpdb->esc_like( $s ).'%';
-        $first = false;
-    }else{
-        $select .= " OR (t.name LIKE '%s')";
-        $string_replace[] = '%'. $wpdb->esc_like( $s ).'%';
+    $search_term = explode( ' ', get_search_query( false ) );   
+    $select = "SELECT DISTINCT t.*, tt.* FROM wp_terms AS t INNER JOIN wp_term_taxonomy AS tt ON t.term_id = tt.term_id WHERE tt.taxonomy IN ('category')";      
+    $first = true;
+    foreach ( $search_term as $s ){
+        if ( $first ){
+            $select .= " AND (t.name LIKE '%s')";
+            $string_replace[] = '%'.$wpdb->esc_like( $s ).'%';
+            $first = false;
+        }else{
+            $select .= " OR (t.name LIKE '%s')";
+            $string_replace[] = '%'. $wpdb->esc_like( $s ).'%';
+        }
     }
-}
-$select .= " ORDER BY t.name ASC";
-$terms = $wpdb->get_results( $wpdb->prepare( $select, $string_replace ) );
-if ( count($terms) > 0 ){
-    echo '<ul>';
-    foreach ( $terms as $term ) {
-        echo '<li><a href="'.esc_url( get_term_link( $term ) ).'" title="'.esc_attr( $term->name ).'">' . esc_html( $term->name ) . '</a></li>';
+    $select .= " ORDER BY t.name ASC";
+    $terms = $wpdb->get_results( $wpdb->prepare( $select, $string_replace ) );
+    if ( count($terms) > 0 ){
+        echo '<ul>';
+        foreach ( $terms as $term ) {
+            echo '<li><a href="'.esc_url( get_term_link( $term ) ).'" title="'.esc_attr( $term->name ).'">' . esc_html( $term->name ) . '</a></li>';
+        }
+        echo '</ul>';
     }
-    echo '</ul>';
-}
 ?>
 
 <script type="text/javascript">
 $(document).ajaxStop(function() { 
     //Executed when all ajax requests are done.
 });
+</script>
+
+<!-- form submit on change select dropdown -->
+<script type="text/javascript">
+$(document).ready(function(){
+    $(document).on("change",'.srch_numbers',function(){
+        this.form.submit();
+    });
+});
+</script>
+
+<!-- display only current author's post in admin -->
+<?php
+function posts_for_current_author($query) {
+    global $user_level;
+  
+    if($query->is_admin && $user_level <= 7) { // Valid for all users except the administrators
+        global $user_ID;
+        $query->set('author', $user_ID);
+        unset($user_ID);
+    }
+    unset($user_level);
+    return $query;
+}
+add_filter('pre_get_posts', 'posts_for_current_author');
+?>
+
+<!-- redirect using php -->
+<?php 
+header("Location: ".get_bloginfo('url'));
+exit();
+
+/*add body class to inner pages*/
+add_filter( 'body_class', 'innerpage_body_class' );
+function innerpage_body_class( $classes ) {
+    if ( ! is_front_page() ) {  //if ( is_page( '38034' ) ) { 
+        $classes[] = 'inner_pages';
+    }
+    return $classes;
+}
+
+/*hide acf field settings*/
+add_filter('acf/settings/show_admin', '__return_false');
+
+/*add support for post types*/
+function add_support_for_post_types() {
+    add_post_type_support( 'post', 'excerpt' );
+}
+add_action( 'init', 'add_support_for_post_types' );
+
+/*default template check*/
+if(basename(get_page_template()) === 'page.php') { }
+?>
+
+<script>
+$("input[type=radio][name=timerad]").on('change',function() {
+    //select value on change radio
+});
+
+/*date fetch from calender*/
+$("#datepicker").datepicker({
+    minDate: 0,              
+    dateFormat: "d-MM-yy",
+    onSelect : function(dateText, inst) {   
+        //var timeStamp = $.datepicker.formatDate('@', $(this).datepicker('getDate')) / 1000;
+        var dateObject = $(this).datepicker("getDate");
+        var dateString = $.datepicker.formatDate("dd-mm-yy", dateObject);
+        $('#hidden1').val(dateString);
+    }
+});
+</script>
+
+<div class="e-polyFt wow zoomInDown goTo" data-go-to="polygon2" data-wow-delay="0.4s">
+</div>
+
+<section class="accomodation" id="polygon2">
+</section>
+
+<!-- remove thumbnail dimensions -->
+<?php
+add_filter( 'post_thumbnail_html', 'remove_thumbnail_dimensions', 10, 3 );
+function remove_thumbnail_dimensions( $html, $post_id, $post_image_id ) {
+    $html = preg_replace( '/(width|height)=\"\d*\"\s/', "", $html );
+    return $html;
+}
+?>
+
+<!-- text replace jquery -->
+<script>
+$(document).ready(function() {
+    var text=$(".breadcrumb-item.active").text();
+    var b=text.replace('Experience:','');
+    $(".breadcrumb-item.active").text(b);
+});
+</script>
+
+<!-- echo syntax -->
+<?=$i?> <!-- means --> <?php echo $i; ?>
+
+<!-- ceil funtion -->
+<?php
+echo(ceil(0.60) . "<br>"); // 1
+echo(ceil(5.1)); // 6
+echo(ceil(-5.9)); // -5
+?>
+
+<form method="GET" action="">
+    volume : <input type="text" name="volume">
+    <input type="submit" value="Submit">
+</form>
+<?php 
+if(isset($_GET['volume'])){
+    $url = "https://blockchain.info/tobtc?currency=INR&value=".$_GET['volume'];
+    $json = json_decode(file_get_contents($url), true);
+    print_r($json);
+}
+?>
+
+<!-- curl api syntax -->
+<?php
+    $url="https://8080qa.mgt-corp.com/api";
+    //  Initiate curl
+    $ch = curl_init();
+
+    // Disable SSL verification
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    // Will return the response, if false it print the response
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    // Set the url
+    curl_setopt($ch, CURLOPT_URL,$url);
+
+    // Execute
+    $result=curl_exec($ch);
+
+    // Closing
+    curl_close($ch);
+
+    // Will dump a beauty json :3
+    var_dump(json_decode($result, true));
+?>
+
+<?php 
+if(!defined('STRIPE_BASE_URL')) {
+    define('STRIPE_BASE_URL', plugin_dir_url(__FILE__));
+}
+if(!defined('STRIPE_BASE_DIR')) {
+    define('STRIPE_BASE_DIR', dirname(__FILE__));
+}
+?>
+
+<!-- repeater load more -->
+<div class="gallery_inr">
+    <div class="row">
+        <?php 
+            if (have_rows('gallery_image')) {
+                $total = count(get_field('gallery_image'));
+                $number = 6; 
+                $count = 0;
+                while( have_rows('gallery_image') ) { the_row();?>
+                    <div class="col-md-4 col-sm-6" id="my-repeater-list-id">
+                        <a href="javascript:void(0)" class="gallery_cell"><img src="<?php the_sub_field('image'); ?>" alt=""></a> 
+                    </div>
+                <?php 
+                    $count++;
+                    if ($count == $number) {
+                        break;
+                    } 
+                } 
+            }
+        ?>       
+    </div>       
+    <div class="cleafix text-center">
+        <a class="btn global_btn" id="my-repeater-show-more-link" href="javascript: my_repeater_show_more();"<?php 
+        if(($total < $count) || ($total <= $number)) { ?> style="display: none;"<?php } ?>>Show More</a>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var my_repeater_field_post_id = <?php echo $post->ID; ?>;
+    var my_repeater_field_offset = <?php echo $number; ?>;
+    var my_repeater_field_nonce = '<?php echo wp_create_nonce('my_repeater_field_nonce'); ?>';
+    var my_repeater_ajax_url = '<?php echo admin_url('admin-ajax.php'); ?>';
+    var my_repeater_more = true;
+    
+    function my_repeater_show_more() {
+        $.post(
+            my_repeater_ajax_url, {
+                'action': 'my_repeater_show_more',
+                'post_id': my_repeater_field_post_id,
+                'offset': my_repeater_field_offset,
+                'nonce': my_repeater_field_nonce
+            },
+            function (json) {
+                $('.gallery_inr .row').append(json['content']);
+                my_repeater_field_offset = json['offset'];
+                if (!json['more']) {
+                    $('#my-repeater-show-more-link').css('display', 'none');
+                }
+            },
+            'json'
+        );
+    }   
+</script>
+
+//in function
+<?php 
+add_action('wp_ajax_my_repeater_show_more', 'my_repeater_show_more');
+add_action('wp_ajax_nopriv_my_repeater_show_more', 'my_repeater_show_more');
+
+function my_repeater_show_more() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'my_repeater_field_nonce')) {
+        exit;
+    }
+    
+    if (!isset($_POST['post_id']) || !isset($_POST['offset'])) {
+        return;
+    }
+    $show = 3; 
+    $start = $_POST['offset'];
+    $end = $start+$show;
+    $post_id = $_POST['post_id'];
+    ob_start();
+    if (have_rows('gallery_image', $post_id)) {
+        $total = count(get_field('gallery_image', $post_id));
+        $count = 0;
+        while (have_rows('gallery_image', $post_id)) {
+            the_row();
+            if ($count < $start) {
+                $count++;
+                continue;
+            }
+        ?>
+            <div class="col-md-4 col-sm-6">
+                <a href="javascript:void(0)" class="gallery_cell"><img src="<?php the_sub_field('image'); ?>" alt=""></a> 
+            </div>
+        <?php 
+            $count++;
+            if ($count == $end) {
+                break;
+            }
+        }
+    }
+    $content = ob_get_clean();
+    $more = false;
+    if ($total > $count) {
+        $more = true;
+    }
+    echo json_encode(array('content' => $content, 'more' => $more, 'offset' => $end));
+    exit;
+} 
+?>
+
+<!-- custom pagination -->
+
+<div class="listing_wrap_inr">
+    <?php 
+        $rowsperpage = 1;
+        $totalpages = ceil($cnt / $rowsperpage);
+
+        // get the current page or set a default
+        if (isset($_GET['currentpage']) && is_numeric($_GET['currentpage'])) {
+            // cast var as int
+            $currentpage = (int) $_GET['currentpage'];
+        } else {
+            // default page num
+            $currentpage = 1;
+        } // end if
+
+        // if current page is greater than total pages...
+        if ($currentpage > $totalpages) {
+            // set current page to last page
+            $currentpage = $totalpages;
+        } // end if
+        // if current page is less than first page...
+        if ($currentpage < 1) {
+            // set current page to first page
+            $currentpage = 1;
+        } // end if
+
+        // the offset of the list, based on current page 
+        $offset = ($currentpage - 1) * $rowsperpage;
+
+        foreach(array_slice($hotels,$offset,$rowsperpage) as $hotel) {
+    ?>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="listing_pic"><img src="<?php echo wp_get_attachment_url( get_post_thumbnail_id($hotel->ID) ); ?>" alt=""></div>
+            </div>
+            <div class="col-sm-8">
+                <div class="listing_content">
+                    <h4><?php echo $hotel->post_title; ?></h4>
+                    <p><?php echo wp_trim_words($hotel->post_content,25,' ...'); ?></p>
+                    <div class="clearfix">
+                        <a href="<?php the_permalink($hotel->ID); ?>" class="btn global_btn">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php } ?>
+</div>
+
+<ul class="pagination exp_pagination">
+    <?php $range = 2;
+        if ($currentpage > 1) {
+            $prevpage = $currentpage - 1;
+    ?>
+        <li class="page-item"><a class="page-link" href="<?php echo esc_url(home_url('/escapes-hideaways/'));?>?currentpage=<?php echo $prevpage; ?>&country=<?php echo $_GET['country'];?>">Prev</a></li>
+    <?php } 
+        // loop to show links to range of pages around current page
+        for ($x = ($currentpage - $range); $x < (($currentpage + $range) + 1); $x++) {
+            // if it's a valid page number...
+            if (($x > 0) && ($x <= $totalpages)) {
+                // if we're on current page...
+                if ($x == $currentpage) {
+                    
+    ?>
+        <!-- 'highlight' it but don't make a link -->
+        <li class="page-item"><span aria-current="page" class="page-numbers current page-link"><?php echo $x; ?></span></li><?php
+                // if not current page...
+                } else {
+                    // make it a link
+                ?>
+                <li class="page-item"><a class="page-link" href='<?php echo esc_url(home_url('/escapes-hideaways/'));?>?currentpage=<?php echo $x; ?>&country=<?php echo $_GET['country'];?>'><?php echo $x; ?></a></li>
+            <?php
+                }
+            }
+        }
+        // if not on last page, show forward and last page links        
+        if ($currentpage != $totalpages) {
+            // get next page
+            $nextpage = $currentpage + 1;
+                // echo forward link for next page 
+    ?>
+        <li class="page-item"><a class="page-link" href="<?php echo esc_url(home_url('/escapes-hideaways/'));?>?currentpage=<?php echo $nextpage; ?>&country=<?php echo $_GET['country'];?>">Next</a></li>
+    <?php   // echo forward link for lastpage
+        } // end if
+    ?>
+</ul>
+
+<!-- has class jquery -->
+<script>
+$(document).on('click','.exp_pagination a.page-link',function(){
+    var ache = $('.exp_pagination a.page-link').hasClass('active');
+    if(ache=="true") {
+        $('.exp_pagination').find('.active').removeClass('active');
+    }
+});
+</script>
+
+<!-- remove admin menus -->
+<?php
+function remove_menus() {
+    remove_menu_page( 'index.php' );                  //Dashboard
+    remove_menu_page( 'jetpack' );                    //Jetpack* 
+    remove_menu_page( 'edit.php' );                   //Posts
+    remove_menu_page( 'upload.php' );                 //Media
+    remove_menu_page( 'edit.php?post_type=page' );    //Pages
+    remove_menu_page( 'edit-comments.php' );          //Comments
+    remove_menu_page( 'themes.php' );                 //Appearance
+    remove_menu_page( 'plugins.php' );                //Plugins
+    remove_menu_page( 'users.php' );                  //Users
+    remove_menu_page( 'tools.php' );                  //Tools
+    remove_menu_page( 'options-general.php' );        //Settings
+}
+add_action( 'admin_menu', 'remove_menus' );
+
+/*fetch content from csv*/
+$uploadpath=get_field('upload');
+$file = fopen('https://www.stjamesalumni.com/wp-content/themes/SJS_Alumni_Website/inc/Jacobean_newlisting.csv', 'r');
+//$line = fgetcsv($file);
+while (($line = fgetcsv($file)) !== FALSE) {
+    $array[]=$line;
+}
+
+foreach ($array as $key => $value) {
+    wp_insert_post(
+        array(
+            'post_title' => $value[1],
+            'post_content' =>   $value[6],
+            'post_status'       =>  'publish',
+            'post_type'     =>  'directories',
+            'meta_input' => array(
+                'year_of_passing' => $value[2],
+                'country' => $value[3],
+                'city' => $value[4],
+                'occupation' => $value[5],
+                'contact' => $value[7],
+                'email' => $value[0],
+                'facebook_link' => $value[8]
+            )
+        )
+    );
+}
+?>
+
+<!-- form action in home page -->
+<?php $_SERVER['PHP_SELF']; ?>
+
+<!-- form action in same page -->
+<?php $_SERVER['REQUEST_URI']; ?>
+
+<!-- fetch slug from current url -->
+<?php 
+$prev_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+$trm_url=trim(parse_url($prev_url, PHP_URL_PATH), '/');
+?>
+
+<!-- siblings example jquery -->
+<script type="text/javascript">
+$(document).on("change",'.file_upload',function(){
+    var file = $(this)[0].files[0].name;
+    $(this).parent().siblings('.upload_mow').children('em').text(file);
+}); 
+</script>
+<div class="upload_file">
+    <label class="upload_mow">
+        <em>Upload Ihrer Bewerbung</em>
+        <span>
+            <img src="https://blochnet.de/wp-content/themes/custom theme/assets/images/upload.png" alt="">
+        </span>
+    </label>
+    <span class="file-743">
+        <input type="file" name="file-743" size="40" class="file_upload" accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.ppt,.pptx,.odt,.avi,.ogg,.m4a,.mov,.mp3,.mp4,.mpg,.wav,.wmv">
+    </span>
+</div>
+
+<!-- set textarea rows and columns in contact form 7 -->
+[textarea* your-message x3 class:form-control] <!-- only rows -->
+[textarea* your-message 10x class:form-control] <!-- only columns -->
+[textarea* your-message 10x3 class:form-control] <!-- both -->
+
+<!-- menu active class add -->
+<?php 
+function special_nav_class ($classes, $item) {
+   if (in_array('current-menu-item', $classes) ){
+       $classes[] = 'active ';
+   }
+   return $classes;
+}
+add_filter('nav_menu_css_class' , 'special_nav_class' , 10 , 2);
+?>
+
+<!-- query string example -->
+<a href="<?php echo esc_url(home_url('/hotel-details/')); ?>?hotel=<?php echo $post->ID ?>&country=<?php echo $country_id; ?>" class="btn global_btn">View Details</a>
+
+in page
+<?php if(isset($_GET['hotel'])) { } ?>
+
+<!-- remove %20 from string -->
+<?php echo urldecode($_GET['hotel']); ?>
+
+<li class="breadcrumb-item">
+    <a class="contry" href="<?php if(isset($_GET['country'])){ the_permalink( $_GET['country'] ); } else{ the_permalink($_SESSION['cntry_id']);} ?>"><?php if(isset($_GET['country'])){ echo get_the_title($_GET['country']); } else {?><?php echo $_SESSION['cntry_title']; ?><?php } ?> 
+    </a>
+</li>
+
+<!-- on click anchor page load -->
+<a href="javascript:void(0)" class="htl_link" url="<?php the_permalink($htl->ID); ?>?country=<?php echo $_GET['country']; ?>">Hotel name</a>
+<script>
+$(".htl_link").on('click',function(){
+    var url=$(this).attr('url')+'&activity='+$(".activityListing li.active a").text();
+    window.location.href=url;
+});
+
+/*jquery parent,parents*/
+$('span').parent('li').addClass('active'); //The parent() method returns the direct parent element of the selected element.
+$('span').parents('ul').addClass('active'); //The parents() method returns all ancestor elements of the selected element, all the way up to the document's root element (<html>).
+$("span").parentsUntil("div").css({"color": "red", "border": "2px solid red"}); //The parentsUntil() method returns all ancestor elements between two given arguments.
+</script>
+
+<div>div (great-grandparent)
+    <ul>ul (grandparent)  
+        <li>li (direct parent)
+            <span>span</span>
+        </li>
+    </ul>
+</div>
+
+<!-- email after post staus change -->
+<?php
+add_action( 'transition_post_status', 'email_for_new_post_status', 10, 3 );
+function email_for_new_post_status( $new_status, $old_status, $post ) {
+    if( 'publish' != $old_status && 'publish' == $new_status && $post->post_type == 'company' ) {
+        $user=get_field('email');
+        $posttitle=get_the_title($post->ID);
+        $to=$user.','.'barun.kantiroy@esolzmail.com';
+        $subject = "Notification for approved claim";
+        $message='<div style="width: 100%; margin: 0 auto; vertical-align: middle; background-color:#066A88;padding-top: 12px;padding-bottom: 12px; ">
+            <table cellpadding="0" cellspacing="0" style="width:550px; verticle-align:middle; background-color:#FFFFFF;margin: 0 auto;">
+                <tr>
+                    <td colspan="2" style="text-align:center;"><img src="http://111.93.181.155/lab5/wordpress/company_complaints/wp-content/themes/company_complaints/assets/images/logo.png"></td>
+                </tr>
+                <tr>
+                    <td width="100%" style=" padding:5px 20px 5px 20px;">
+                        <strong> Claim Approved</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="100%" style=" padding:5px 20px 5px 20px;">
+                        <p>Claim Title: </h2><p>'.$posttitle.'</p>
+                    </td>
+                </tr>
+            </table>
+        </div>';
+        // Always set content-type when sending HTML email
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        // More headers
+        $headers .= 'From:  Company complaint <wordpress.johnson@gmail.com>' . "\r\n";
+        $headers .= 'Cc: wordpress.johnson@gmail.com' . "\r\n";
+        wp_mail($to,$subject,$message,$headers);
+    }
+}
+
+/*Change post stus name*/
+function wps_translation_mangler($translation, $text, $domain) {
+    global $post;
+    if (($post->post_type == 'company')||($post->post_type == 'person')) {
+        $translations = &get_translations_for_domain( $domain);
+        if ( $text == 'Pending Review') {
+            return $translations->translate( 'Pending Settlement' );
+        }
+        if ( $text == 'Published') {
+            return $translations->translate( 'Settled Claim' );
+        }   
+    }
+    return $translation;
+}
+add_filter('gettext', 'wps_translation_mangler', 10, 4);
+
+/*currency convert dynamically from USD*/
+$amount = get_field('price_in_usd','activity_cat_'.$trmm->term_id); echo '</br>';
+if($_SESSION['currency']=='USD'){
+    $total1='$ '.$amount;
+}
+else if($_SESSION['currency']=='GBP'){
+    $query =  "USD_GBP";                                           
+    $json = file_get_contents("https://free.currconv.com/api/v7/convert?q={$query}&compact=ultra&apiKey=422e1afbcb4493c0b2e3");
+    $obj = json_decode($json, true);
+    $val = floatval($obj["$query"]);
+    $total = $val * $amount;
+    $total1='£ '.number_format($total, 2, '.', '');
+}
+else if($_SESSION['currency']=='EUR'){
+    $query =  "USD_EUR";                                              
+    $json = file_get_contents("https://free.currconv.com/api/v7/convert?q={$query}&compact=ultra&apiKey=422e1afbcb4493c0b2e3");
+    $obj = json_decode($json, true);   
+    $val = floatval($obj["$query"]);
+    $total = $val * $amount;
+    $total1='€ '.number_format($total, 2, '.', '');
+}
+else{
+    $total1='$ '.$amount;
+}                           
+?>
+
+<!-- jquery no conflict -->
+<script type="text/javascript">
+$ = jQuery.noConflict(true);
 </script>

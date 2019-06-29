@@ -25,6 +25,7 @@ if ( ! is_wp_error( $user_id ) ) {
 <!-- display site tagline  -->
 <?php echo get_bloginfo('description'); ?>
 
+<!-- add class in anchor for wp_nav_menu -->
 <?php
 function add_menuclass($ulclass) {
     return preg_replace('/<a /', '<a class="goto"', $ulclass);
@@ -82,7 +83,7 @@ echo '</ul>';
 ?> 
 
 <!-- time format  -->
-<?php the_time('F j, Y'); ?> March 10,1994
+<?php the_time('F j, Y'); ?> <!-- March 10,1994 -->
 
 //to get the featured image
 <img src="<?php echo wp_get_attachment_url( get_post_thumbnail_id($post->ID) ); ?>" alt="" />
@@ -90,25 +91,46 @@ echo '</ul>';
 //get image alt featured image
 <?php $imgAlt = get_post_meta(get_post_thumbnail_id($post->ID),'_wp_attachment_image_alt', true); ?>
 
+<!-- featured image instructions -->
+<?php 
+function month_featured_image_html( $html ) { 
+    if(get_post_type() === 'month') {
+        $html .= '<p>Recommended dimension, 181x183.</p>'; 
+    }
+    return $html; 
+} 
+add_filter( 'admin_post_thumbnail_html', 'month_featured_image_html');
+?>
+
 //ternary example
 <a href="<?php echo (get_field('view_all_work_link',93)) ? get_field('view_all_work_link',93) : 'javascript:void(0)'; ?>"></a>
 
+<!-- featured image with checking -->
 <?php 
 if ( has_post_thumbnail() ) { 
     $imagebg =  wp_get_attachment_url( get_post_thumbnail_id() );                             
 } else{
     $imagebg= get_stylesheet_directory_uri().'/images/noimage.jpg';
 }
-?>
-<?php 
+
+
 if ( has_post_thumbnail($post->ID) ) { 
     the_post_thumbnail('full', array('class'=>'img-responsive'));
 } 
 ?>
-or <?php  array('class'=>'img-fluid'); ?>
+or <?php array('class'=>'img-fluid'); ?>
 
-<?php $img=wp_get_attachment_image_src(get_post_thumbnail_id(),'full'); ?>
+<!-- featured image -->
+<?php $img=wp_get_attachment_image_src(get_post_thumbnail_id(),'full'); //returns array as below ?>
 <img src="<?php echo $img[0]; ?>" alt=""/>
+
+<?php array(
+    [0] => url,
+    [1] => width</em>,
+    [2] => height</em>,
+    [4] => is_intermediate
+)
+?>
 
 //for post page
 <?php $img=wp_get_attachment_image_src(get_post_thumbnail_id(get_option('page_for_posts')),'full'); ?>
@@ -135,20 +157,12 @@ function pippin_get_image_id($image_url) {
 }
 </style>
 
-<?php array(
-    [0] => url,
-    [1] => width</em>,
-    [2] => height</em>,
-    [4] => is_intermediate
-)
-?>
-
-    <img src="<?php the_post_thumbnail_url(); ?>" alt="">               // without parameter -> 'post-thumbnail'
-    <img src="<?php the_post_thumbnail_url( 'thumbnail' ); ?>" alt="">  // Thumbnail (default 150px x 150px max)
-    <img src="<?php the_post_thumbnail_url( 'medium' ); ?>" alt="">     // Medium resolution (default 300px x 300px max)
-    <img src="<?php the_post_thumbnail_url( 'large' ); ?>" alt="">      // Large resolution (default 640px x 640px max)
-    <img src="<?php the_post_thumbnail_url( 'full' );  ?>" alt="">      // Full resolution (original size uploaded) 
-    <img src="<?php the_post_thumbnail_url( array(100,100) ); ?>" alt="">  // Other resolutions
+<img src="<?php the_post_thumbnail_url(); ?>" alt="">               // without parameter -> 'post-thumbnail'
+<img src="<?php the_post_thumbnail_url( 'thumbnail' ); ?>" alt="">  // Thumbnail (default 150px x 150px max)
+<img src="<?php the_post_thumbnail_url( 'medium' ); ?>" alt="">     // Medium resolution (default 300px x 300px max)
+<img src="<?php the_post_thumbnail_url( 'large' ); ?>" alt="">      // Large resolution (default 640px x 640px max)
+<img src="<?php the_post_thumbnail_url( 'full' );  ?>" alt="">      // Full resolution (original size uploaded) 
+<img src="<?php the_post_thumbnail_url( array(100,100) ); ?>" alt="">  // Other resolutions
 
 <?php the_post_thumbnail('case-thumb',array('class'=>'img-fluid'));
  
@@ -163,16 +177,7 @@ the_post_thumbnail( 'shop_catalog' );   // Shop catalog (300 x 300 hard cropped)
 the_post_thumbnail( 'shop_single' );    // Shop single (600 x 600 hard cropped)
 ?>
 
-//to get post tags
-<?php 
-    $id=get_the_ID();
-    $terms = wp_get_post_tags($id);   
-    foreach($terms as $trm) {
-        echo $trm->name;
-    }
-?>
-
-global variables for woocommerce
+<!-- global variables for woocommerce -->
 <?php
     global $woocommerce;
     $product = new WC_Product(get_the_ID()); 
@@ -200,13 +205,12 @@ global variables for woocommerce
     $category = get_the_category($post->ID);
     echo $category[0]->cat_name;
 ?>
+
 //display category id of a post
 <?php 
     $id=get_the_ID(); 
     $categories = get_the_category();
-
-    foreach($categories as $cat)
-    {
+    foreach($categories as $cat){
         echo $cat->term_id;
     }
 ?>
@@ -214,8 +218,7 @@ global variables for woocommerce
  <?php  
     global $post;
     $terms = wp_get_object_terms($post->ID,'video_tag');   
-    foreach($terms as $trm)
-    {
+    foreach($terms as $trm){
         echo $trm->name;
     }
 ?>
@@ -723,11 +726,6 @@ if (!empty($blog_ctgry)) {
 ?>
 <h4><?php echo implode(' , ', $categoriess); ?></h4>
 
-<script>
-jQuery(document).ready(function($) {
-});
-</script>
-
 <!-- scroll -->
 <script>
     $(document).ready(function(){ 
@@ -747,19 +745,28 @@ echo $display_name;
 
 <!-- to get tags from normal post -->
 <?php 
-    $id=get_the_ID();
-    $terms = wp_get_post_tags($id); 
-    if(!empty($terms)){
-?>
-//the code and
-<?php
+$id=get_the_ID();
+$terms = wp_get_post_tags($id); 
+if(!empty($terms)){
     $tags = array();
-    foreach($terms as $trm)
-    {
+    foreach($terms as $trm) {
         $tags[] = '<a href="'.get_tag_link($trm->term_id).'">'.$trm->name.'</a>';
     } 
     echo implode(',',$tags); 
 }  
+?>
+
+<!-- to get categories from normal post -->
+<?php 
+global $post;
+$terms = wp_get_post_categories($post->ID); 
+if(!empty($terms)){
+    $categories = array();
+    foreach($terms as $trm) {
+        $categories[] = '<a href="'.get_tag_link($trm->term_id).'">'.$trm->name.'</a>';
+    } 
+    echo implode(',',$categories); 
+}
 ?>
 
 <!-- comments -->
@@ -850,6 +857,7 @@ function custom_post_type() {
         'show_in_menu'        => true,
         'show_in_nav_menus'   => true,
         'show_in_admin_bar'   => true,
+        'show_in_rest'        => true, //for gutenberg editor
         'menu_position'       => 30,
         'menu_icon'           => 'dashicons-calendar-alt',
         'can_export'          => true,
@@ -865,22 +873,22 @@ add_action( 'init', 'custom_post_type', 0 ); ?>
 
 <?php 
 //category create
-add_action( 'init', 'create_article_taxonomies', 0 );
+add_action( 'init', 'create_category_taxonomies', 0 );
 // create two taxonomies, genres and writers for the post type "book"
-function create_article_taxonomies() {
+function create_category_taxonomies() {
     // Add new taxonomy, make it hierarchical (like categories)
     $labels = array(
-        'name'              => _x( 'article-categories', 'taxonomy general name' ),
-        'singular_name'     => _x( 'article-category', 'taxonomy singular name' ),
-        'search_items'      => __( 'Search categories' ),
-        'all_items'         => __( 'All article-categories' ),
-        'parent_item'       => __( 'Parent article-category' ),
-        'parent_item_colon' => __( 'Parent article-category:' ),
-        'edit_item'         => __( 'Edit article-category' ),
-        'update_item'       => __( 'Update article-category' ),
-        'add_new_item'      => __( 'Add New article-category' ),
-        'new_item_name'     => __( 'New article-category Name' ),
-        'menu_name'         => __( 'article-category' ),
+        'name'              => _x( 'Article categories', 'taxonomy general name' ),
+        'singular_name'     => _x( 'Article category', 'taxonomy singular name' ),
+        'search_items'      => __( 'Search Article categories' ),
+        'all_items'         => __( 'All Article categories' ),
+        'parent_item'       => __( 'Parent Article category' ),
+        'parent_item_colon' => __( 'Parent Article category:' ),
+        'edit_item'         => __( 'Edit Article category' ),
+        'update_item'       => __( 'Update Article category' ),
+        'add_new_item'      => __( 'Add New Article category' ),
+        'new_item_name'     => __( 'New Article category Name' ),
+        'menu_name'         => __( 'Article category' ),
     );
 
     $args = array(
@@ -891,11 +899,11 @@ function create_article_taxonomies() {
         'show_admin_column' => true,
         'update_count_callback' => 'my_update_article_category',
         'query_var'         => true,
-        'rewrite'           => array( 'slug' => 'article-category' ),
+        'rewrite'           => array( 'slug' => 'article_category' ),
         'supports'          => array('thumbnail'),
     );
 
-    register_taxonomy( 'article-category', array( 'articles' ), $args );    
+    register_taxonomy( 'article_category', array( 'articles' ), $args );    
 }
 add_theme_support( 'post-thumbnails', array( 'post','articles' ) );
 
@@ -914,12 +922,12 @@ function my_update_article_category( $terms, $taxonomy ) {
 //for tags
 add_action( 'init', 'create_tag_taxonomies', 0 );
 
-//create two taxonomies, genres and tags for the post type "tag"
+//create tag taxonomy for the post type "video"
 function create_tag_taxonomies() {
     // Add new taxonomy, NOT hierarchical (like tags)
     $labels = array(
         'name' => _x( 'Video Tags', 'taxonomy general name' ),
-        'singular_name' => _x( 'video Tag', 'taxonomy singular name' ),
+        'singular_name' => _x( 'Video Tag', 'taxonomy singular name' ),
         'search_items' =>  __( 'Search Video Tags' ),
         'popular_items' => __( 'Popular Video Tags' ),
         'all_items' => __( 'All Video Tags' ),
@@ -957,24 +965,24 @@ function create_tag_taxonomies() {
 or 
 <?php echo wp_trim_words(get_the_content(),10,' ... '); ?>
 
-//to get post tags of custom type
+<!-- taxonomy query to get post tags/categories of custom post type -->
 <?php
-    $query1 = new WP_Query( 
-        array( 
-            'order' => ASC,
-            'posts_per_page' => '5', 
-            'post_type' => 'video',
-            'tax_query' => array(
-                    array(
-                        'taxonomy' => 'video_tag',
-                        "terms" => $tag_list,
-                        'field'    => 'slug',
-                        )
-                    )
-        ) );
-        if ( $query1->have_posts() ) {
-            while ( $query1->have_posts() ) {
-                $query1->the_post();
+$query = new WP_Query( 
+    array( 
+        'order' => 'ASC',
+        'posts_per_page' => 5, 
+        'post_type' => 'video',
+        'tax_query' => array(
+            array(
+                'taxonomy' => 'video_tag',
+                "terms" => 'tag_slug', //category_slug
+                'field'    => 'slug',
+            )
+        )
+    ) );
+    if ( $query->have_posts() ) {
+        while ( $query->have_posts() ) {
+            $query->the_post();
 ?>
 
 //for modal form
@@ -1011,21 +1019,7 @@ $(document).on('click','.goTo', function(event) {
     }, 1000);
 });
 </script>
-//to get widget
-<?php 
-function socialmenu() {
-    register_sidebar( array(
-        'name'          => __( 'Footer Block Three', 'twentyseventeen' ),
-        'id'            => 'footer_menu3',
-        'description'   => __( 'Add widgets here to appear in your sidebar on blog posts and archive pages.', 'twentyseventeen' ),
-        'before_widget' => '<ul>',
-        'after_widget'  => '</ul>',
-        'before_title'  => '',
-        'after_title'   => '',
-    ) );
-}
 
-add_action( 'widgets_init', 'socialmenu' ); ?>
 // in archieve page
 <?php
     the_archive_title( '<h1 class="page-title">', '</h1>' );
@@ -1038,9 +1032,6 @@ add_action( 'widgets_init', 'socialmenu' ); ?>
 //get a page
 <?php $query = new WP_Query('page_id=91');  ?>
 
-<?php global $post; 
-foreach(get_the_tags($post->ID) as $tag) ?>
-
 //for repeater
 <?php while( have_rows('') ): the_row(); ?>
 
@@ -1050,79 +1041,83 @@ foreach(get_the_tags($post->ID) as $tag) ?>
 <?php echo THEME_DIR_URI; ?>/assets/images/inner_banner.jpg; 
 <?php bloginfo('template_directory'); ?>/assets/
 
+<!-- image path for child theme -->
+<?php echo esc_url(get_stylesheet_directory_uri()); ?>/assets/
+
 //comment form
 <?php
-    $fields =  array(
-              'author' =>
-                '<div class="form-group"><input id="author" placeholder="Name" name="author" class="form-control" type="text" value="' . esc_attr( $commenter['comment_author'] ) .
-                '" size="30"' . $aria_req . ' required /></div>',
+    $fields = array(
+        'author' =>
+        '<div class="form-group"><input id="author" placeholder="Name" name="author" class="form-control" type="text" value="' . esc_attr( $commenter['comment_author'] ) .
+        '" size="30"' . $aria_req . ' required /></div>',
 
-              'email' =>
-                '<div class="form-group"><input id="email" placeholder="Email" name="email" class="form-control" type="text" value="' . esc_attr(  $commenter['comment_author_email'] ) .
-                '" size="30"' . $aria_req . ' required /></div>',
+        'email' =>
+        '<div class="form-group"><input id="email" placeholder="Email" name="email" class="form-control" type="text" value="' . esc_attr(  $commenter['comment_author_email'] ) .
+        '" size="30"' . $aria_req . ' required /></div>',
 
-              'url' =>
-                '<div class="form-group"><input id="url" placeholder="Url" name="url" type="text" class="form-control" value="' . esc_attr( $commenter['comment_author_url'] ) .
-                '" size="30" required /></div>',
-            );
+        'url' =>
+        '<div class="form-group"><input id="url" placeholder="Url" name="url" type="text" class="form-control" value="' . esc_attr( $commenter['comment_author_url'] ) .
+        '" size="30" required /></div>',
+    );
     $args = array(
-              'id_form'           => 'commentform',
-              'class_form'        => 'comment-form',
-              'id_submit'         => 'submit',
-              'class_submit'      => 'btnNormal btnRed',
-              'name_submit'       => 'Post Comment',
-              'title_reply_before'=> '<div class="addComment"><label>',
-              'title_reply_after' => '</label></div>',
-              'title_reply'       => __( 'Add Your Comments' ),
-              'title_reply_to'    => __( 'Leave a Reply to %s' ),
-              'cancel_reply_link' => __( 'Cancel Reply' ),
-              'label_submit'      => __( 'Send' ),
-              'format'            => 'xhtml',
-              'fields'            => apply_filters( 'comment_form_default_fields', $fields ),
-              'comment_field'     =>  '<div class="form-group chckTextearea"><textarea id="comment" name="comment" placeholder="Write a comment here" class="form-control" aria-required="true" required></textarea></div>',
-              'must_log_in'       => '<p class="must-log-in">' .
-                sprintf(
-                  __( 'You must be <a href="%s">logged in</a> to post a comment.' ),
-                  wp_login_url( apply_filters( 'the_permalink', get_permalink() ) )
-                ) . '</p>',
-              'logged_in_as' => '<p class="logged-in-as">' .
-                sprintf(
+        'id_form'           => 'commentform',
+        'class_form'        => 'comment-form',
+        'id_submit'         => 'submit',
+        'class_submit'      => 'btnNormal btnRed',
+        'name_submit'       => 'Post Comment',
+        'title_reply_before'=> '<div class="addComment"><label>',
+        'title_reply_after' => '</label></div>',
+        'title_reply'       => __( 'Add Your Comments' ),
+        'title_reply_to'    => __( 'Leave a Reply to %s' ),
+        'cancel_reply_link' => __( 'Cancel Reply' ),
+        'label_submit'      => __( 'Send' ),
+        'format'            => 'xhtml',
+        'fields'            => apply_filters( 'comment_form_default_fields', $fields ),
+        'comment_field'     =>  '<div class="form-group chckTextearea"><textarea id="comment" name="comment" placeholder="Write a comment here" class="form-control" aria-required="true" required></textarea></div>',
+        'must_log_in'       => '<p class="must-log-in">' .
+        sprintf(
+          __( 'You must be <a href="%s">logged in</a> to post a comment.' ),
+          wp_login_url( apply_filters( 'the_permalink', get_permalink() ) )
+        ) . '</p>',
+        'logged_in_as' => '<p class="logged-in-as">' .
+            sprintf(
                 __( 'Logged in as <a href="%1$s">%2$s</a>. <a href="%3$s" title="Log out of this account">Log out?</a>' ),
-                  admin_url( 'profile.php' ),
-                  $user_identity,
-                  wp_logout_url( apply_filters( 'the_permalink', get_permalink( ) ) )
-                ) . '</p>'           
-            );
+            admin_url( 'profile.php' ),
+             $user_identity,
+            wp_logout_url( apply_filters( 'the_permalink', get_permalink( ) ) )
+        ) . '</p>'           
+    );
     comment_form($args, $post_id);
 ?>
 
+<!-- slide item dynamic -->
 <div class='item'>
     <ul class='partner_area'>
-<?php
-    $pageid = get_the_ID();
-    if( get_field('iconimage',$pageid) ): $count = 0;
-        $post_meta = get_post_meta($pageid, 'iconimage', true);
-        $counts = 0;
-        if (is_array($flex_field_array)) {
-            $counts = count($flex_field_array);
-        }
-        while ( has_sub_field('iconimage',$pageid) ) : $count++;
-            if( get_row_layout() == 'add_icon' ):
-                $image = get_sub_field('image');
-                $hoverimage = get_sub_field('hoverimage');
-?>
-    <li>
-        <span><img src="<?php echo $hoverimage['url']; ?>" alt=""></span>
-        <img src="<?php echo $image['url']; ?>" alt=""> 
-    </li>
-<?php
-    if(($count%6 == 0) && ($count<$counts)): ?>
-        </ul></div><div class='item'><ul class='partner_area'>
-        <?php endif;
+        <?php
+            $pageid = get_the_ID();
+            if( get_field('iconimage',$pageid) ): $count = 0;
+                $post_meta = get_post_meta($pageid, 'iconimage', true);
+                $counts = 0;
+                if (is_array($flex_field_array)) {
+                    $counts = count($flex_field_array);
+                }
+                while ( has_sub_field('iconimage',$pageid) ) : $count++;
+                    if( get_row_layout() == 'add_icon' ):
+                        $image = get_sub_field('image');
+                        $hoverimage = get_sub_field('hoverimage');
+        ?>
+            <li>
+                <span><img src="<?php echo $hoverimage['url']; ?>" alt=""></span>
+                <img src="<?php echo $image['url']; ?>" alt=""> 
+            </li>
+        <?php
+            if(($count%6 == 0) && ($count<$counts)): ?>
+                </ul></div><div class='item'><ul class='partner_area'>
+                <?php endif;
+                endif;
+            endwhile;
         endif;
-    endwhile;
-endif;
-?>
+        ?>
     </ul>
 </div>
 
@@ -1133,12 +1128,13 @@ endif;
     $args=array(
             'tag__in' => array($first_tag),
             'post__not_in' => array($post->ID),
-            'posts_per_page'=>5,
+            'posts_per_page' => 5,
             'post_type' => 'post'                           
         );
     $query1 = new WP_Query($args); 
 ?>
 
+<!-- image upload -->
 <?php
     list($width, $height, $type, $attr) = getimagesize("image_name.jpg");
 
@@ -2058,8 +2054,6 @@ $(document).on("change",'input[name="crse"]',function(){
 if(isset($content) && $content){
 } ?>
 
-my ip=http://10.0.0.229
-
 <?php 
 function themeName_customize_register( $wp_customize ) {
     // Add Section
@@ -2175,7 +2169,7 @@ img{
     <source src="<?php the_field(''); ?>" type="video/mp4">
 </video>
 
-php code for scrolling to a section
+<!-- php code for scrolling to a section -->
 <?php echo esc_url(home_url('/help-start/')); ?>#idname; 
 
 //for image show on upload
@@ -2383,6 +2377,7 @@ add_filter('pre_get_posts','searchfilter');
     </table>
 </div>
 
+<!-- fetch and assign value to hidden input on change radiobutton -->
 <script type="text/javascript">
 jQuery(document).ready(function($) {
     $("input[name='crse']").change(function(){      
@@ -2443,14 +2438,15 @@ add_action( 'init', 'add_roless' );
 ?>
 
 <?php 
-  global $current_user; 
-  get_currentuserinfo(); 
-  $usr=get_user_meta($current_user->ID);
-  echo "<pre>";
-    print_r($usr);
-  echo "</pre>";
+    global $current_user; 
+    get_currentuserinfo(); 
+    $usr=get_user_meta($current_user->ID);
+    echo "<pre>";
+        print_r($usr);
+    echo "</pre>";
 ?>
 
+<!-- logout -->
 <a href="<?php echo wp_logout_url(); ?>">Logout</a>
 
 <!-- Sign up and login mail template -->
@@ -2585,8 +2581,7 @@ var $mcj = jQuery.noConflict(true);</script>
 </div>
 
 
-'<div style="width: 100%; margin: 0 auto; vertical-align: middle; background-color:#A30234;padding-top: 12px;padding-bottom: 12px; ">
-                 
+<div style="width: 100%; margin: 0 auto; vertical-align: middle; background-color:#A30234;padding-top: 12px;padding-bottom: 12px; ">              
     <table cellpadding="0" cellspacing="0" style="width:550px; verticle-align:middle; background-color:#FFFFFF;margin: 0 auto;">
         <tr>
            <td colspan="6" style="text-align:center;"><img src="http://ticenter.net/wp-content/uploads/2016/03/logo.png"></td>
@@ -2645,7 +2640,7 @@ var $mcj = jQuery.noConflict(true);</script>
           </td>
         </tr>                        
     </table>                    
-</div>';
+</div>
 
 <iframe id="vzvd-5725673" name="vzvd-5725673" title="vzaar video player" class="vzaar-video-player" type="text/html" width="768" height="432" frameborder="0" allowFullScreen allowTransparency="true" mozallowfullscreen webkitAllowFullScreen src="//view.vzaar.com/5725673/player"></iframe>
 
@@ -4115,9 +4110,8 @@ add plugin -> https://wordpress.org/plugins/comet-cache/
 10.permalink & htaccess set
 11.screenshot.png -> replace
 
-<?php  
-    wp_editor($mail_content, "msg",array('wpautop'=>false,'media_buttons' => true)); 
-?>
+<!-- add text editor -->
+<?php wp_editor($mail_content, "msg",array('wpautop'=>false,'media_buttons' => true)); ?>
 
 <!-- mail function in php -->
 <?php
@@ -4157,6 +4151,7 @@ mail($to, $subject, $message, $headers);
 //woocommerce cart update ajax
 <?php echo WC()->cart->get_cart_contents_count(); ?>
 
+<!-- ajax example -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
 jQuery(document).ready( function($) {
@@ -4189,23 +4184,9 @@ jQuery(document).ready( function($) {
 });
 </script>
 
-<!-- Adds WooCommerce support -->
 <?php 
-add_action( 'after_setup_theme', 'woocommerce_support' );
-function woocommerce_support() {
-    add_theme_support( 'woocommerce' );
-}
-
-add_action( 'init', 'my_script_enqueuer' );
-function my_script_enqueuer() {
-    wp_localize_script( 'my_voter_script', 'myAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));
-    wp_enqueue_script( 'jquery' );
-    wp_enqueue_script( 'my_voter_script' );
-}
-
 add_action("wp_ajax_my_user_vote", "my_user_vote");
 add_action("wp_ajax_nopriv_my_user_vote", "my_must_login");
-
 function my_user_vote() {
     if ( !wp_verify_nonce( $_REQUEST['nonce'], "my_user_vote_nonce")) {
         exit("No naughty business please");
@@ -4235,7 +4216,23 @@ function my_user_vote() {
 
    die();
 }
+?>
 
+<!-- Adds WooCommerce support -->
+<?php 
+add_action( 'after_setup_theme', 'woocommerce_support' );
+function woocommerce_support() {
+    add_theme_support( 'woocommerce' );
+}
+
+add_action( 'init', 'my_script_enqueuer' );
+function my_script_enqueuer() {
+    wp_localize_script( 'my_voter_script', 'myAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));
+    wp_enqueue_script( 'jquery' );
+    wp_enqueue_script( 'my_voter_script' );
+}
+
+/*declare sample function*/
 function my_must_login() {
    echo "You must log in to vote";
    die();
@@ -4355,6 +4352,7 @@ add_action( 'init', 'set_new_cookie');
 }(jQuery);
 </script>
 
+<!-- image upload -->
 <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $permited  = array('jpg', 'jpeg', 'png', 'gif');
@@ -4797,8 +4795,36 @@ function change_howdy($translated, $text, $domain) {
 }
 ?>
 
-
+<!-- ajax file upload -->
 https://stackoverflow.com/questions/41949148/ajax-sending-input-file-and-additional-variable-to-php-file-through-ajax?rq=1
+
+<body>
+    <input type='text' name='text' id='text'>
+    <input type="file" name="media" id="media">
+    <div class="result"></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script>
+    $(document).ready(function(){
+        $('#media').change(function(e){
+            var file = this.files[0];
+            var form = new FormData();
+            form.append('media', file);
+            form.append('text', $('#text').val());
+            $.ajax({
+                url : "upload.php",
+                type: "POST",
+                cache: false,
+                contentType: false,
+                processData: false,
+                data : form,
+                success: function(response){
+                    $('.result').html(response.html)
+                }
+            });
+        });
+    });
+    </script>
+</body>
 
 <!-- redirect users -->
 <?php 
@@ -4976,7 +5002,7 @@ if(!empty($results)){
     }
 }
 
-//rating system wordpress
+//rating system wordpress using for loop
 $stars=get_field('rating_section'); 
 for($count=1;$count<=$stars;$count++){ ?>
     <i class="fa fa-star" aria-hidden="true" style="color:#f5cf1b;  font-size:20px;" ></i>
@@ -5322,6 +5348,7 @@ $(document).on('change','[name="tradesman_interest[]"]',function(){
 }); 
 </script>
 
+<!-- random password generator -->
 <?php
 function randomPassword() {
     $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
@@ -5413,6 +5440,7 @@ function posts_by_year() {
 }
 ?>
 
+<!-- sql query example -->
 <?php 
 $args  = array(
     'post_type'      => 'post',
@@ -5913,6 +5941,7 @@ if(!defined('STRIPE_BASE_DIR')) {
     <div class="cleafix text-center">
         <a class="btn global_btn" id="my-repeater-show-more-link" href="javascript: my_repeater_show_more();"<?php 
         if(($total < $count) || ($total <= $number)) { ?> style="display: none;"<?php } ?>>Show More</a>
+        <div class="connect_btn"></div>
     </div>
 </div>
 
@@ -5924,6 +5953,7 @@ if(!defined('STRIPE_BASE_DIR')) {
     var my_repeater_more = true;
     
     function my_repeater_show_more() {
+        $('.connect_btn').html('<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>');
         $.post(
             my_repeater_ajax_url, {
                 'action': 'my_repeater_show_more',
@@ -5932,6 +5962,7 @@ if(!defined('STRIPE_BASE_DIR')) {
                 'nonce': my_repeater_field_nonce
             },
             function (json) {
+                $('.connect_btn').html('');
                 $('.gallery_inr .row').append(json['content']);
                 my_repeater_field_offset = json['offset'];
                 if (!json['more']) {
@@ -6224,7 +6255,7 @@ function email_for_new_post_status( $new_status, $old_status, $post ) {
     if( 'publish' != $old_status && 'publish' == $new_status && $post->post_type == 'company' ) {
         $user=get_field('email');
         $posttitle=get_the_title($post->ID);
-        $to=$user.','.'barun.kantiroy@esolzmail.com';
+        $to=$user.' , '.'barun.kantiroy@esolzmail.com';
         $subject = "Notification for approved claim";
         $message='<div style="width: 100%; margin: 0 auto; vertical-align: middle; background-color:#066A88;padding-top: 12px;padding-bottom: 12px; ">
             <table cellpadding="0" cellspacing="0" style="width:550px; verticle-align:middle; background-color:#FFFFFF;margin: 0 auto;">
@@ -6299,3 +6330,158 @@ else{
 <script type="text/javascript">
 $ = jQuery.noConflict(true);
 </script>
+
+<!-- Search Replace DB -->
+Replace "http://esolz.co.in/lab5/wordpress/travel_website"<!-- Old site url --> 
+with "http://localhost/abhijoy/travel_website"<!-- New site url -->
+
+<!-- Live wordpress site without plugin -->
+https://www.wpbeginner.com/wp-tutorials/how-to-move-wordpress-from-local-server-to-live-site/#manualmigration
+
+<!-- date compare -->
+<?php 
+    $currentdate = date("Y-m-d",mktime(0,0,0,date("m"),date("d")-1,date("Y")));
+    $events= new WP_Query( array(
+        'post_type' => 'events',
+        'meta_key' => 'event_date',
+        'orderby' => 'meta_value_num',
+        'order' => 'ASC',
+        'paged' => ( get_query_var('paged') ? get_query_var('paged') : 1 ),
+        'showposts' => 3,
+        'meta_query'=> array(
+            array(
+                'key' => 'event_date',
+                'compare' => '>=',
+                'value' => $currentdate,
+                'type' => 'DATE',
+            ))
+        )
+    );
+    if ( $events->have_posts() ) :
+    while ( $events->have_posts() ) : $events->the_post(); 
+
+
+/*check request method on form submit*/
+if( $_SERVER['REQUEST_METHOD'] == "POST" ){ }
+
+/*Disable Login Hints*/
+function no_wordpress_erors(){
+    return 'Something is wrong!';
+}
+add_filter( 'login_errors', 'no_wordpress_erors' );
+?>
+
+<!-- post filter with categories -->
+<div class="button-group filters-button-group">
+    <div class="btn-grp-inr">
+        <button class="button is-checked" data-filter="*">All</button>
+        <?php
+            $categories=get_categories();
+            foreach( $categories as $category ){
+        ?>
+            <button class="button" data-filter=".<?php echo $category->slug; ?>"><?php echo $category->name; ?></button>
+        <?php } ?>   
+    </div>
+</div>
+
+<div class="grid">
+    <?php
+        $args = array(
+            'post_type' => 'post',
+            'posts_per_page'=> -1,
+            'post_status' => 'publish'
+        );
+        $products = new WP_Query( $args );
+        if( $products->have_posts() ) {
+            while( $products->have_posts() ) {
+                $products->the_post();
+
+                $termsString = "";
+                $catss=wp_get_post_terms( $post->ID, 'category' );
+                foreach ( $catss as $catt ) { 
+                    $termsString .= $catt->slug.' '; //create a string that has all the slugs 
+                }
+    ?>
+        <div class="element-item <?php echo $termsString; ?>" data-category="transition">
+            <div class="elemnt-inr">
+                <div class="elemntimg">
+                    <img src="<?php echo wp_get_attachment_url( get_post_thumbnail_id() );?>" alt="">
+                </div>
+                <div class="elemnt-txt">
+                    <h4><?php the_title();?></h4>
+                    <?php the_content();?>
+
+                    <div class="blger d-flex">
+                        <figure><img src="<?php the_field('author_image');?>" alt=""></figure>
+                        <p><span><?php the_field('author_name');?></span> <em><?php echo get_the_date('M d, Y');?></em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php } wp_reset_postdata(); } ?>
+</div>
+
+<!-- post filter with one category per post -->
+<div class="button-group filters-button-group">
+    <div class="btn-grp-inr">
+        <button class="button is-checked" data-filter="*">All</button>
+        <?php
+            $categories=get_categories();
+            foreach( $categories as $category ){
+                $slug=$category->slug;
+            ?>
+            <button class="button" data-filter=".<?php echo $slug; ?>"><?php echo $category->name; ?></button>
+        <?php } ?>   
+        
+    </div>
+</div>
+
+<div class="grid">
+    <?php 
+        foreach( $categories as $category ){
+            $slug=$category->slug;
+            $args = array(
+                'post_type' => 'post',
+                'posts_per_page'=> -1,
+                'post_status' => 'publish',
+                'tax_query' => array(
+                    array(
+                        'taxonomy' => 'category',
+                        'field' => 'slug',
+                        'terms' => $slug
+                    )
+                )
+            );
+            $products = new WP_Query( $args );
+            if( $products->have_posts() ) {
+                while( $products->have_posts() ) {
+                    $products->the_post();
+    ?>
+        <div class="element-item <?php echo $slug; ?>" data-category="transition">
+            <div class="elemnt-inr">
+                <div class="elemntimg">
+                    <img src="<?php echo wp_get_attachment_url( get_post_thumbnail_id() );?>" alt="">
+                </div>
+                <div class="elemnt-txt">
+                    <h4><?php the_title();?></h4>
+                    <?php the_content();?>
+
+                    <div class="blger d-flex">
+                        <figure><img src="<?php the_field('author_image');?>" alt=""></figure>
+                        <p><span><?php the_field('author_name');?></span> <em><?php echo get_the_date('M d, Y');?></em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php } wp_reset_postdata(); } } ?>
+</div>
+
+<!-- auto login new user after registration -->
+<?php 
+function wp_auto_login_new_user( $user_id ) {
+    wp_set_current_user( $user_id );
+    wp_set_auth_cookie( $user_id, false, is_ssl() );
+    wp_safe_redirect( home_url( '/' ) );
+}
+add_action( 'user_register', 'wp_auto_login_new_user' );
+?>
